@@ -1,0 +1,1895 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#09090b">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="display" content="standalone">
+  <title>E-GenLap | SDM PKH</title>
+  
+  <link rel="apple-touch-icon" href="https://drive.google.com/uc?export=download&id=1uPpCYwoX2w2ZrA0-mvmi69cBafF88J1e">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .glossy-monster { background: linear-gradient(135deg, rgba(24, 24, 27, 0.9) 0%, rgba(9, 9, 11, 0.95) 100%);
+box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(132, 204, 22, 0.15);
+color: white; }
+    .glossy-input { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(132, 204, 22, 0.2);
+color: white; backdrop-filter: blur(5px); transition: all 0.3s ease; }
+    .glossy-input:focus { background: rgba(255, 255, 255, 0.1);
+border-color: #a3e635; outline: none; box-shadow: 0 0 15px rgba(132, 204, 22, 0.3);
+}
+    .glossy-input option { background: #09090b; color: #a3e635; }
+    html, body { width: 100%;
+min-height: 100%; margin: 0; padding: 0; }
+    input, textarea { user-select: text;
+}
+    .app-bg { background: linear-gradient(180deg, #09090b 0%, #18181b 100%); }
+    .section-hidden { display: none;
+}
+    .fab-button { box-shadow: 0 0 20px rgba(132, 204, 22, 0.6); animation: pulse-glow 2s infinite;
+}
+    @keyframes pulse-glow { 0%, 100% { transform: translateY(-50%) scale(1);
+box-shadow: 0 0 15px rgba(132, 204, 22, 0.4); } 50% { transform: translateY(-50%) scale(1.05);
+box-shadow: 0 0 30px rgba(132, 204, 22, 0.9); } }
+    .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 4px;
+}
+    .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); border-radius: 4px;
+}
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(132, 204, 22, 0.5); border-radius: 4px;
+}
+  </style>
+</head>
+<body class="app-bg font-sans antialiased text-gray-100 selection:bg-lime-500 selection:text-black">
+
+  <div id="fullscreenLoading" class="fixed inset-0 bg-[#09090b]/95 backdrop-blur-xl z-[500] hidden flex-col items-center justify-center transition-opacity duration-500 opacity-0 h-screen w-screen">
+      <div class="relative w-32 h-32 flex items-center justify-center mb-8 mx-auto">
+          <div class="absolute inset-0 border-4 border-lime-900/50 rounded-full animate-ping"></div>
+          <div class="absolute inset-2 border-4 border-lime-500/30 rounded-full animate-spin shadow-[0_0_30px_rgba(132,204,22,0.4)]" style="animation-direction: reverse; animation-duration: 3s;"></div>
+          <div class="absolute inset-4 border-4 border-lime-400 rounded-full border-t-transparent animate-spin shadow-[0_0_20px_rgba(132,204,22,0.8)]" style="animation-duration: 1.5s;"></div>
+    
+      <div class="relative z-10 bg-zinc-900 w-16 h-16 rounded-full flex items-center justify-center border border-lime-400 shadow-[0_0_15px_rgba(132,204,22,0.5)]">
+              <i class="fas fa-bolt text-3xl text-lime-400 animate-pulse"></i>
+          </div>
+      </div>
+      <h2 class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-lime-200 to-lime-500 tracking-[0.2em] mb-3 animate-pulse text-center">MEMPROSES DATA</h2>
+      <div class="flex flex-col items-center text-center">
+          <p class="text-sm text-lime-100/70 font-medium">Sistem memproses antrean permintaan...</p>
+   
+   </div>
+  </div>
+
+  <div id="toastContainer" class="fixed top-5 left-1/2 transform -translate-x-1/2 w-11/12 max-w-sm z-[600] flex flex-col gap-2"></div>
+
+  <div id="modalReview" class="fixed inset-0 bg-[#09090b]/90 backdrop-blur-sm z-[700] hidden flex-col items-center justify-center p-4 transition-opacity">
+      <div class="glossy-monster w-full max-w-sm rounded-2xl p-4 border border-lime-500/30 shadow-2xl scale-100 transition-transform relative">
+          <div class="border-b border-zinc-700 pb-2 mb-3">
+              <h3 class="text-lg font-bold text-lime-400"><i class="fas fa-clipboard-check mr-2"></i> Review Laporan</h3>
+              
+<p class="text-[10px] text-zinc-400">Pastikan seluruh data yang Anda isi sudah benar</p>
+          </div>
+          <div id="reviewContent" class="max-h-[60vh] overflow-y-auto custom-scrollbar pr-2 mb-4"></div>
+          <div class="flex gap-3">
+              <button type="button" onclick="document.getElementById('modalReview').classList.add('hidden')" class="w-1/2 p-3 rounded-xl bg-zinc-800 text-zinc-300 text-sm font-bold border border-zinc-600 hover:bg-zinc-700 transition-all">Batal / Edit</button>
+              <button type="button" onclick="executeGenerate()" class="w-1/2 p-3 rounded-xl bg-gradient-to-r from-lime-500 to-lime-400 text-black 
+text-sm font-extrabold shadow-[0_0_15px_rgba(132,204,22,0.4)] hover:shadow-[0_0_20px_rgba(132,204,22,0.6)] transition-all">Generate</button>
+          </div>
+      </div>
+  </div>
+
+  <div id="modalConfirmReg" class="fixed inset-0 bg-[#09090b]/90 backdrop-blur-sm z-[800] hidden flex-col items-center justify-center p-4 transition-opacity">
+    <div class="glossy-monster w-full max-w-sm rounded-2xl p-5 border border-lime-500/30 shadow-2xl scale-100 transition-transform relative text-center">
+        <i class="fas fa-exclamation-triangle text-4xl text-yellow-500 mb-3"></i>
+        <h3 class="text-lg font-bold text-lime-400 mb-2">Konfirmasi Biodata</h3>
+        <p class="text-xs text-zinc-300 mb-4">Apakah data yang Anda masukkan (Nama, NIP, Jabatan, Email) sudah benar?
+Biodata yang sudah didaftarkan akan tersimpan otomatis dan <b>TIDAK BISA DIUBAH LAGI</b> pada form pelaporan.
+Kesalahan input adalah tanggung jawab pendaftar.</p>
+        <div class="flex gap-3 mt-4">
+            <button type="button" onclick="document.getElementById('modalConfirmReg').classList.add('hidden')" class="w-1/2 p-3 rounded-xl bg-zinc-800 text-zinc-300 text-sm font-bold border border-zinc-600 hover:bg-zinc-700 transition-all">Cek Lagi</button>
+            <button type="button" onclick="eksekusiRegister()" class="w-1/2 p-3 rounded-xl bg-gradient-to-r from-lime-500 to-lime-400 text-black text-sm font-extrabold hover:shadow-[0_0_20px_rgba(132,204,22,0.6)] transition-all">Ya, Daftar</button>
+        </div>
+    </div>
+  </div>
+
+  <div id="modalLupaPass" class="fixed inset-0 bg-[#09090b]/90 backdrop-blur-sm z-[800] hidden flex-col items-center justify-center p-4 transition-opacity">
+    
+<div class="glossy-monster w-full max-w-sm rounded-2xl p-5 border border-lime-500/30 shadow-2xl relative">
+        <h3 class="text-lg font-bold text-lime-400 mb-2"><i class="fas fa-key mr-2"></i> Lupa Password</h3>
+        <p class="text-xs text-zinc-300 mb-4">Masukkan Email Anda yang terdaftar.
+Password akan dikirimkan ke email tersebut.</p>
+        <input type="email" id="lupaEmail" class="w-full p-3 text-sm rounded-xl glossy-input mb-4" placeholder="Email Terdaftar">
+        <div class="flex gap-3">
+            <button type="button" onclick="document.getElementById('modalLupaPass').classList.add('hidden')" class="w-1/2 p-3 rounded-xl bg-zinc-800 text-zinc-300 text-sm font-bold border border-zinc-600 hover:bg-zinc-700 transition-all">Batal</button>
+            <button type="button" onclick="prosesLupaPassword()" class="w-1/2 p-3 rounded-xl bg-gradient-to-r from-lime-500 to-lime-400 text-black text-sm font-extrabold hover:shadow-[0_0_20px_rgba(132,204,22,0.6)] transition-all">Kirim</button>
+        </div>
+    </div>
+  </div>
+
+  <div 
+class="max-w-md w-full mx-auto relative min-h-screen shadow-2xl bg-black/40 flex flex-col pb-20">
+    <header class="glossy-monster p-4 rounded-b-3xl shadow-lg flex-shrink-0 z-10 border-b border-lime-500/30 sticky top-0">
+        <div class="flex justify-between items-center">
+            <h1 class="text-2xl font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-lime-300 to-lime-500"><i class="fas fa-bolt mr-1"></i> E-GenLap</h1>
+            <div class="flex items-center gap-3">
+                <div class="text-right text-sm">
+         
+                 <div id="realtimeClock" class="font-mono font-bold text-lime-400">00:00:00</div>
+                  <div id="realtimeDate" class="text-[10px] text-zinc-400 uppercase tracking-wide">Tanggal</div>
+                </div>
+                
+                <div id="adminHeaderMenu" class="hidden flex items-center gap-2 border-l border-zinc-700 pl-2">
+        
+                    <button onclick="nav('keuangan')" class="bg-yellow-500/10 text-yellow-500 w-8 h-8 rounded-full border border-yellow-500/30 flex items-center justify-center hover:bg-yellow-500/30 transition-all shadow-[0_0_10px_rgba(234,179,8,0.2)]" title="Menu Keuangan">
+                        <i class="fas fa-wallet text-sm"></i>
+                    </button>
+                    <button onclick="nav('admin')" class="bg-blue-500/10 text-blue-500 w-8 
+h-8 rounded-full border border-blue-500/30 flex items-center justify-center hover:bg-blue-500/30 transition-all shadow-[0_0_10px_rgba(59,130,246,0.2)]" title="Menu Super Admin">
+                    <i class="fas fa-user-shield text-sm"></i>
+                    </button>
+                </div>
+
+                <button onclick="logout()" id="btnLogoutHeader" class="hidden bg-red-500/10 text-red-500 w-8 h-8 rounded-full border border-red-500/30 flex items-center 
+justify-center hover:bg-red-500/30 transition-all shadow-[0_0_10px_rgba(239,68,68,0.2)]">
+                    <i class="fas fa-power-off text-sm"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="p-5 flex-grow" id="mainContent">
+      <section id="sec-auth" class="glossy-monster p-5 rounded-2xl mb-6">
+        <div class="text-center mb-6">
+      
+             <i class="fas fa-user-circle text-5xl text-lime-400 mb-2"></i>
+            <h2 class="text-xl font-bold text-white">Selamat Datang</h2>
+            <p class="text-xs text-zinc-400">Silakan masuk atau daftar untuk menggunakan E-GenLap.</p>
+        </div>
+
+        <div class="mt-2 mb-4 bg-lime-900/20 border border-lime-500/40 p-4 rounded-xl shadow-inner">
+             <p class="text-lime-400 font-extrabold text-xs mb-2 animate-pulse"><i class="fas fa-gift mr-1 text-yellow-400"></i> DAFTAR SEKARANG, DAPATKAN 1 TOKEN 
+GRATIS!</p>
+            <ul class="text-[10px] text-zinc-300 text-left space-y-2">
+                <li><i class="fas fa-check-circle text-lime-500 mr-1"></i> Generate Laporan Otomatis via AI</li>
+                <li><i class="fas fa-check-circle text-lime-500 mr-1"></i> Analisis Dasar Hukum & Aturan Kemensos</li>
+                <li><i class="fas fa-check-circle text-lime-500 mr-1"></i> Unduh Otomatis Format PDF/DOC</li>
+       
+             </ul>
+        </div>
+
+        <div id="formLogin">
+            <input type="email" id="logEmail" class="w-full p-3 text-sm rounded-xl glossy-input mb-3" placeholder="Email Anda" required>
+            <div class="relative mb-4">
+                <input type="password" id="logPassword" class="w-full p-3 text-sm rounded-xl glossy-input pr-10" placeholder="Password / PIN Admin">
+             
+                <button type="button" onclick="togglePass('logPassword', 'eyeLog')" class="absolute inset-y-0 right-3 flex items-center text-zinc-400 hover:text-lime-400"><i id="eyeLog" class="fas fa-eye"></i></button>
+            </div>
+            <button onclick="prosesLogin()" class="w-full bg-lime-500 text-black font-extrabold py-3 rounded-xl hover:bg-lime-400 transition-all text-sm mb-3 shadow-[0_0_15px_rgba(132,204,22,0.3)]"><i class="fas fa-sign-in-alt mr-2"></i> Masuk</button>
+            <p class="text-center text-xs text-zinc-400 mt-2">Belum punya akun?
+<span onclick="toggleAuthForm()" class="text-lime-400 cursor-pointer font-bold underline">Daftar Disini</span></p>
+            <p class="text-center text-xs text-zinc-400 mt-2">Lupa Password?
+<span onclick="document.getElementById('modalLupaPass').classList.remove('hidden')" class="text-lime-400 cursor-pointer font-bold underline">Klik Disini</span></p>
+        </div>
+        <div id="formRegister" class="hidden">
+            <input type="text" id="regNama" class="w-full p-3 text-sm rounded-xl glossy-input mb-3" placeholder="Nama Lengkap" required>
+            <input type="number" id="regNIP" class="w-full p-3 text-sm rounded-xl glossy-input mb-3" placeholder="NIP (Kosongkan jika tidak ada)">
+            <select id="regJabatan" class="w-full p-3 text-sm rounded-xl glossy-input mb-3">
+         
+                <option value="Penata layanan operasional">Penata layanan operasional</option>
+                <option value="Pengelola layanan operasional">Pengelola layanan operasional</option>
+            </select>
+            <input type="email" id="regEmail" class="w-full p-3 text-sm rounded-xl glossy-input mb-3" placeholder="Email Valid" required>
+            <div class="relative mb-3">
+                <input type="password" 
+id="regPassword" class="w-full p-3 text-sm rounded-xl glossy-input pr-10" placeholder="Buat Password" required>
+                <button type="button" onclick="togglePass('regPassword', 'eyeReg')" class="absolute inset-y-0 right-3 flex items-center text-zinc-400 hover:text-lime-400"><i id="eyeReg" class="fas fa-eye"></i></button>
+            </div>
+            <button onclick="validasiRegister()" class="w-full bg-lime-500 text-black font-extrabold py-3 rounded-xl hover:bg-lime-400 transition-all text-sm mb-3"><i class="fas fa-user-plus mr-2"></i> Daftar Akun</button>
+            <p class="text-center text-xs text-zinc-400 mt-2">Sudah punya akun?
+<span onclick="toggleAuthForm()" class="text-lime-400 cursor-pointer font-bold underline">Kembali Login</span></p>
+        </div>
+      </section>
+
+      <section id="sec-dashboard" class="glossy-monster p-5 rounded-2xl mb-6 section-hidden">
+        <div class="flex justify-between items-center mb-4">
+            <div>
+                <h2 class="text-lg font-bold text-lime-400" id="userGreeting">Halo, User</h2>
+                <p class="text-[10px] text-zinc-400" id="userRoleBadge">Role: User</p>
+   
+         </div>
+            <div class="bg-lime-900/30 border border-lime-500/50 px-3 py-1.5 rounded-xl text-center shadow-inner">
+                <p class="text-[9px] text-lime-200" id="labelTokenDashboard">SISA TOKEN</p>
+                <p class="text-2xl font-black text-lime-400" id="sisaTokenDash">0</p>
+            </div>
+        </div>
+        <div class="grid grid-cols-2 
+gap-4 mt-5">
+          <div class="bg-gradient-to-br from-zinc-800 to-zinc-900 p-5 rounded-xl text-center border border-lime-500/30 shadow-lg flex flex-col justify-center items-center">
+            <h3 class="text-4xl font-black text-lime-400 drop-shadow-md" id="countSukses">0</h3>
+            <p class="text-xs font-bold text-zinc-400 mt-2 tracking-wide uppercase">Sukses</p>
+          </div>
+          <div class="bg-gradient-to-br from-zinc-800 to-zinc-900 p-5 rounded-xl text-center border border-red-500/30 shadow-lg flex flex-col justify-center items-center">
+        
+    <h3 class="text-4xl font-black text-red-500 drop-shadow-md" id="countGagal">0</h3>
+            <p class="text-xs font-bold text-zinc-400 mt-2 tracking-wide uppercase">Gagal</p>
+          </div>
+        </div>
+        
+        <div class="mt-5 bg-zinc-800/50 p-4 rounded-xl border border-lime-500/20 shadow-md">
+           <h3 class="text-sm font-bold text-lime-400 mb-3 border-b border-zinc-700 pb-2"><i class="fas fa-tasks mr-2"></i> Ringkasan Kegiatan</h3>
+         
+   <div class="rounded-lg border border-zinc-700 w-full">
+               <table class="w-full text-left text-[10px] text-zinc-300">
+                 <thead class="bg-zinc-900/80 text-lime-400">
+                    <tr><th class="p-2">Nama Kegiatan</th><th class="p-2 text-center">Jumlah</th></tr>
+                 </thead>
+               
+  <tbody id="ringkasanKegiatanTable" class="divide-y divide-zinc-800/50">
+                    <tr><td colspan="2" class="text-center italic text-zinc-500 py-2">Memuat data...</td></tr>
+                 </tbody>
+               </table>
+           </div>
+        </div>
+      </section>
+
+      <!-- BARU: PENGATURAN PROFIL -->
+      <section id="sec-settings" class="glossy-monster p-5 rounded-2xl mb-6 section-hidden">
+        <h2 class="text-lg font-bold text-lime-400 border-b border-zinc-700 pb-2 mb-4"><i class="fas fa-cog mr-2"></i> Pengaturan Profil Laporan</h2>
+        <div class="bg-black/30 p-4 rounded-xl border border-zinc-700/50 mb-4 shadow-inner">
+            <p class="text-[10px] text-zinc-400 mb-4 border-b border-zinc-700 pb-2"><i class="fas fa-info-circle text-lime-400"></i> Data di bawah ini akan tersimpan permanen di perangkat Anda dan otomatis ditarik setiap kali Anda mengeksekusi Laporan.</p>
+            <div class="space-y-4">
+                <div><label class="block text-xs font-bold text-lime-300 mb-1">Nama Petugas</label><input type="text" id="cfgNama" class="w-full p-3 text-sm rounded-xl glossy-input"></div>
+                <div><label class="block text-xs font-bold text-lime-300 mb-1">NIP (Opsional)</label><input type="number" id="cfgNIP" class="w-full p-3 text-sm rounded-xl glossy-input"></div>
+                <div><label class="block text-xs font-bold text-lime-300 mb-1">Jabatan</label><input type="text" id="cfgJabatan" class="w-full p-3 text-sm rounded-xl glossy-input"></div>
+                <div><label class="block text-xs font-bold text-lime-300 mb-1">Kabupaten/Kota</label><input type="text" id="cfgKabupaten" class="w-full p-3 text-sm rounded-xl glossy-input"></div>
+                
+                <div class="mt-2">
+                    <label class="block text-xs font-bold text-lime-300 mb-2">Tanda Tangan Digital (TTD)</label>
+                    <input type="file" id="cfgTtdFile" accept="image/png, image/jpeg" class="w-full text-sm rounded-xl glossy-input text-zinc-400 file:mr-3 file:py-2 file:px-4 file:rounded-l-xl file:border-0 file:text-xs file:font-bold file:bg-lime-500 file:text-black hover:file:bg-lime-400 cursor-pointer" onchange="prosesTtdSetting(event)">
+                    <div id="cfgPreviewTtdContainer" class="hidden mt-3 relative w-[100px] h-[50px] bg-white rounded-lg p-1 border border-lime-500/50 shadow-md">
+                       <img id="imgCfgTtdPreview" src="" class="w-full h-full object-contain">
+                       <div onclick="hapusTtdSetting()" class="absolute -top-2 -right-2 bg-red-600 text-white w-5 h-5 flex items-center justify-center rounded-full cursor-pointer shadow-lg hover:bg-red-500 text-[10px] z-10 transition-transform active:scale-90"><i class="fas fa-times"></i></div>
+                    </div>
+                </div>
+                <button onclick="simpanSettings()" class="w-full bg-lime-500 text-black font-extrabold py-3 rounded-xl hover:bg-lime-400 transition-all text-sm mt-4 shadow-[0_0_15px_rgba(132,204,22,0.3)]"><i class="fas fa-save mr-2"></i> Simpan & Kunci Data</button>
+            </div>
+        </div>
+      </section>
+
+      <section id="sec-token" class="glossy-monster p-5 rounded-2xl mb-6 
+section-hidden">
+        <h2 class="text-lg font-bold text-lime-400 border-b border-zinc-700 pb-2"><i class="fas fa-coins mr-2"></i> Beli Token AI</h2>
+        <div class="mt-4 bg-zinc-900/50 p-3 rounded-xl border border-lime-500/20 text-xs text-zinc-300 mb-4">
+             <p class="font-bold text-lime-400 mb-1"><i class="fas fa-info-circle"></i> Fasilitas Premium:</p>
+            <ul class="list-disc pl-4 space-y-1">
+                <li>Unduh Otomatis Format PDF/DOC</li>
+        
+        <li>Analisis Aturan Dasar Hukum Otomatis</li>
+                <li>Tanda Tangan digital tersimpan otomatis</li>
+             </ul>
+        </div>
+        <div class="mb-3 bg-lime-900/20 border border-lime-500/30 p-4 rounded-xl flex justify-between items-center transition-all hover:bg-lime-900/40">
+            <div>
+                
+<h3 class="font-bold text-white text-md">Paket Basic</h3>
+                <p class="text-xs text-zinc-300">6 Token Laporan</p>
+            </div>
+             <div class="text-right">
+                <p class="text-lg font-black text-lime-400 mb-1">Rp 10.000</p>
+                <button onclick="konfirmasiWA('Basic', 6, 10000)" class="bg-green-600 text-white font-bold py-1.5 px-3 rounded-lg hover:bg-green-500 text-xs shadow-lg"><i 
+class="fab fa-whatsapp"></i> Beli</button>
+            </div>
+        </div>
+        <div class="mb-3 bg-lime-900/20 border border-lime-500/30 p-4 rounded-xl flex justify-between items-center transition-all hover:bg-lime-900/40">
+             <div>
+                <h3 class="font-bold text-white text-md flex items-center gap-1">Paket Pro <i class="fas fa-star text-yellow-400 text-[10px]"></i></h3>
+                <p class="text-xs 
+text-zinc-300">20 Token Laporan</p>
+            </div>
+            <div class="text-right">
+                <p class="text-lg font-black text-lime-400 mb-1">Rp 30.000</p>
+                <button onclick="konfirmasiWA('Pro', 20, 30000)" class="bg-green-600 text-white font-bold py-1.5 px-3 rounded-lg hover:bg-green-500 text-xs shadow-lg"><i class="fab fa-whatsapp"></i> Beli</button>
+            </div>
+         
+  </div>
+        <div class="mb-4 bg-lime-900/20 border border-lime-500/30 p-4 rounded-xl flex justify-between items-center transition-all hover:bg-lime-900/40">
+            <div>
+                 <h3 class="font-bold text-white text-md flex items-center gap-1">Paket Ultra <i class="fas fa-crown text-yellow-400 text-[10px]"></i></h3>
+                <p class="text-xs text-zinc-300">35 Token Laporan</p>
+            </div>
+        
+     <div class="text-right">
+                <p class="text-lg font-black text-lime-400 mb-1">Rp 50.000</p>
+                <button onclick="konfirmasiWA('Ultra', 35, 50000)" class="bg-green-600 text-white font-bold py-1.5 px-3 rounded-lg hover:bg-green-500 text-xs shadow-lg"><i class="fab fa-whatsapp"></i> Beli</button>
+            </div>
+        </div>
+    
+        <div class="p-3 bg-red-900/20 border border-red-500/30 rounded-xl mb-2">
+    
+        <label class="flex items-start gap-2 cursor-pointer">
+                <input type="checkbox" id="cekSyaratToken" class="mt-1 w-4 h-4 accent-lime-500 shrink-0">
+                <span class="text-[10px] text-zinc-300 leading-tight"><b>PERSETUJUAN (MUTLAK):</b> Saya menyetujui bahwa <b>uang/token tidak dapat di-refund atau dikembalikan dengan alasan APAPUN</b>.
+Saya sepenuhnya bertanggung jawab atas kebenaran isian formulir. Jika laporan gagal diunduh dikarenakan koneksi terputus, token yang terpotong <b>HANGUS</b>.</span>
+            </label>
+        </div>
+      </section>
+
+      <section id="sec-report" class="glossy-monster p-5 rounded-2xl mb-6 section-hidden">
+        <div class="flex justify-between items-center mb-4 border-b border-zinc-700 pb-2">
+            <h2 class="text-lg font-bold text-lime-400" id="titleRiwayat"><i class="fas fa-history mr-2"></i> Riwayat & Agenda</h2>
+     
+       <button onclick="loadDashboardData()" class="text-xs bg-lime-500/20 text-lime-400 hover:bg-lime-500/40 p-2 rounded-lg transition-colors"><i class="fas fa-sync-alt"></i></button>
+        </div>
+
+        <div id="adminFilterContainer" class="hidden mb-3">
+            <input type="text" id="inputFilterRiwayat" onkeyup="resetRiwayatPaginationAndRender()" class="w-full p-2 text-xs rounded-lg glossy-input" placeholder="🔍 Cari Nama, Kegiatan, atau Sisa Token (Admin)...">
+        </div>
+
+        <div class="overflow-x-auto overflow-y-auto custom-scrollbar rounded-lg border border-zinc-700 pb-2 relative w-full">
+           
+<table class="min-w-full text-left text-[10px] text-zinc-300">
+            <thead class="bg-zinc-900/80 text-lime-400 border-b border-lime-500/20 sticky top-0 z-10 backdrop-blur-md" id="theadRiwayat">
+              <tr><th class="p-3 whitespace-nowrap">Nama</th><th class="p-3 whitespace-nowrap">Tanggal & Jam</th><th class="p-3 whitespace-nowrap">Kegiatan</th><th class="p-3 whitespace-nowrap">Status</th></tr>
+            </thead>
+            <tbody id="tableBody" class="divide-y divide-zinc-800/50">
+                 <tr><td colspan="4" class="text-center p-6"><i class="fas fa-spinner fa-spin 
+text-lime-500 mb-2"></i><br>Memuat...</td></tr>
+             </tbody>
+           </table>
+        </div>
+        
+        <div class="flex justify-between items-center mt-3 border-t border-zinc-700/50 pt-3">
+            <button onclick="prevRiwayat()" class="text-lime-400 bg-zinc-800 px-4 py-1.5 rounded-lg hover:bg-zinc-700 text-xs font-bold active:scale-95 transition-all"><i class="fas fa-chevron-left mr-1"></i> Prev</button>
+            <span id="riwayatPageIndicator" class="text-[10px] font-bold text-zinc-400">Hal 
+1 / 1</span>
+             <button onclick="nextRiwayat()" class="text-lime-400 bg-zinc-800 px-4 py-1.5 rounded-lg hover:bg-zinc-700 text-xs font-bold active:scale-95 transition-all">Next <i class="fas fa-chevron-right ml-1"></i></button>
+        </div>
+      </section>
+
+      <!-- FORM GENERATE (DIKURANGI INPUT PENGATURAN) -->
+      <section id="sec-generate" class="glossy-monster p-5 rounded-2xl mb-6 section-hidden">
+        <div class="flex justify-between items-center border-b border-zinc-700 pb-2 mb-4">
+             <h2 class="text-lg font-bold text-lime-400"><i class="fas fa-magic mr-2"></i> Form Laporan</h2>
+        
+     <span class="text-xs bg-lime-900/50 text-lime-300 px-2 py-1 rounded border border-lime-500/30">Token: <b id="formTokenCount">0</b></span>
+        </div>
+      
+        <form id="reportForm" onsubmit="tampilkanReview(event)">
+           <div class="bg-black/30 p-3 rounded-xl border border-zinc-700/50 mb-4">
+            <p class="text-[10px] text-lime-400 font-bold mb-2 uppercase tracking-wider"><i class="fas fa-envelope-open-text mr-1"></i> Data Surat (Opsional)</p>
+             <div id="containerDataSurat">
+      
+                 <div class="surat-item grid grid-cols-2 gap-3 mb-2 relative">
+                   <div><label class="block text-[10px] font-bold text-zinc-300 mb-1">Dasar Surat / No. Surat</label><input type="text" class="input-dasar-surat w-full p-2 text-xs rounded-lg glossy-input" placeholder="Contoh: ST-123/2026"></div>
+                   <div><label class="block text-[10px] font-bold text-zinc-300 mb-1">Perihal Kegiatan</label><input type="text" class="input-perihal-surat w-full p-2 text-xs rounded-lg glossy-input" placeholder="Contoh: Undangan Rakor"></div>
+           
+     </div>
+            </div>
+            <button type="button" onclick="tambahSurat()" class="text-[10px] text-lime-400 hover:text-lime-300 mt-2 font-bold flex items-center gap-1"><i class="fas fa-plus-circle"></i> Tambah Surat</button>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 mb-4">
+             <div><label class="block text-xs font-bold text-lime-300 mb-1">Tanggal</label><input type="date" id="tanggalLaporan" class="w-full p-3 text-sm rounded-xl glossy-input save-draft" required></div>
+      
+       <div><label class="block text-xs font-bold text-lime-300 mb-1">Waktu Pelaksanaan</label><input type="date" id="waktu" class="w-full p-3 text-sm rounded-xl glossy-input save-draft"></div>
+          </div>
+
+          <div class="mb-4">
+              <label class="block text-xs font-bold text-lime-300 mb-1">Jam Mulai Kegiatan (Riwayat Agenda)</label>
+              <input type="time" id="jamMulai" class="w-full p-3 text-sm rounded-xl glossy-input save-draft" required>
+          </div>
+  
+          <div class="mb-4">
+             <label class="block text-xs font-bold text-lime-300 mb-1">Lokasi Kegiatan</label><input type="text" id="lokasi" class="w-full p-3 text-sm rounded-xl glossy-input save-draft" placeholder="Kantor Desa..." required>
+          </div>
+          
+          <div class="mb-4 opacity-50 bg-black/50 p-3 rounded-lg border border-zinc-700/50 hidden" id="readonlyEmailBox">
+             <label class="block text-xs font-bold text-lime-300 mb-1">Email (Akun Sistem)</label><input type="email" id="emailTarget" class="w-full p-2 text-sm rounded-xl glossy-input" readonly>
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-xs font-bold text-lime-300 mb-2">Lampiran Pendukung (Maks 3, 1 Kertas 1 Lampiran)</label>
+             <div class="bg-black/40 border border-lime-500/20 p-3 rounded-xl min-h-[80px] shadow-inner mb-2">
+                 <div id="previewLampiranContainer" class="flex flex-wrap gap-3 items-center">
+            
+         <div id="tombolTambahLampiran" class="flex gap-2">
+                        <div onclick="document.getElementById('lampiranFile').click()" class="w-14 h-14 bg-lime-500/10 border border-dashed border-lime-500/50 flex flex-col items-center justify-center rounded-xl cursor-pointer hover:bg-lime-500/20 text-lime-400">
+                            <i class="fas fa-paperclip text-lg"></i><span class="text-[8px] font-bold mt-1">Upload</span>
+               
+           </div>
+                   </div>
+                </div>
+                <input type="file" id="lampiranFile" accept="image/*" multiple class="hidden" onchange="prosesLampiran(event)">
+            </div>
+            <div class="flex justify-between items-center"><p id="lampiranStatus" class="text-[10px] font-bold text-zinc-500 
+bg-zinc-800 px-2 py-1 rounded-md">0 / 3 File</p></div>
+          </div>
+
+          <div class="mb-4 bg-lime-900/10 p-3 rounded-xl border border-lime-500/30">
+            <label class="block text-xs font-bold text-lime-300 mb-2"><i class="fas fa-search mr-1"></i> Cari & Pilih Kegiatan (RHK)</label>
+             <input type="text" id="searchRHK" class="w-full p-2 mb-3 text-sm rounded-lg glossy-input" placeholder="🔍 Ketik kata kunci RHK..." onkeyup="filterRHK()">
+             <select id="kegiatanSelect" class="w-full 
+p-3 text-sm rounded-xl glossy-input font-medium" onchange="renderDynamicForm()" required>
+                <option value="">Memuat data dari server...</option>
+             </select>
+          </div>
+
+          <div id="dynamicFormArea" class="space-y-4 mb-4 transition-all duration-300"></div>
+
+           <div class="mb-5">
+            <label class="block text-xs font-bold text-lime-300 mb-2">Foto Dokumentasi (Maks 10 Foto, 3 Foto/Halaman)</label>
+ 
+            <div class="bg-black/40 border border-lime-500/20 p-3 rounded-xl min-h-[80px] shadow-inner">
+                  <div id="previewContainer" class="flex flex-wrap gap-3 items-center">
+                   <div id="tombolTambahArea" class="flex gap-2">
+                        <div onclick="document.getElementById('inputKamera').click()" class="w-14 h-14 bg-lime-500/10 border border-dashed border-lime-500/50 flex flex-col items-center justify-center rounded-xl 
+cursor-pointer text-lime-400 hover:bg-lime-500/20 transition-all">
+                        <i class="fas fa-camera text-lg"></i><span class="text-[8px] font-bold mt-1">Kamera</span>
+                      </div>
+                      <div onclick="document.getElementById('inputGaleri').click()" class="w-14 h-14 bg-lime-500/10 border border-dashed border-lime-500/50 flex flex-col items-center justify-center rounded-xl cursor-pointer text-lime-400 hover:bg-lime-500/20 transition-all">
+       
+                   <i class="fas fa-image text-lg"></i><span class="text-[8px] font-bold mt-1">Galeri</span>
+                      </div>
+                   </div>
+                   </div>
+               
+<input type="file" id="inputKamera" accept="image/*" capture="environment" class="hidden" onchange="prosesFoto(event)">
+               <input type="file" id="inputGaleri" accept="image/*" multiple class="hidden" onchange="prosesFoto(event)">
+            </div>
+            <div class="flex justify-between items-center mt-2"><p id="photoStatus" class="text-[10px] font-bold text-zinc-500 bg-zinc-800 px-2 py-1 rounded-md">0 / 10 Foto</p></div>
+        </div>
+
+        <div class="mb-4 bg-lime-900/10 p-3 rounded-xl border border-lime-500/30">
+            
+<label class="block text-xs font-bold text-lime-300 mb-2"><i class="fas fa-file-export mr-1"></i> Format Ekspor (Bisa Pilih Keduanya)</label>
+            <div class="flex gap-4">
+                <label class="flex items-center gap-2 text-sm text-white cursor-pointer"><input type="checkbox" id="formatPDF" value="PDF" checked class="accent-lime-500"> PDF</label>
+                <label class="flex items-center gap-2 text-sm text-white cursor-pointer"><input type="checkbox" id="formatDOCX" value="DOCX" class="accent-lime-500"> DOC (Word)</label>
+            </div>
+        
+</div>
+
+        <button type="submit" id="btnSubmit" class="w-full bg-gradient-to-r from-lime-500 to-lime-400 text-black font-extrabold py-4 px-4 rounded-xl shadow-[0_5px_20px_rgba(132,204,22,0.4)] hover:shadow-[0_5px_25px_rgba(132,204,22,0.6)] transform transition-all text-sm tracking-wide">
+              <span id="btnText"><i class="fas fa-paper-plane mr-2"></i> Eksekusi AI (1 Token)</span>
+            </button>
+        </form>
+      </section>
+
+      <section id="sec-keuangan" class="glossy-monster p-5 rounded-2xl mb-6 section-hidden">
+         <h2 class="text-lg font-bold text-lime-400 border-b border-zinc-700 
+pb-2 mb-4"><i class="fas fa-wallet mr-2"></i> Rekapitulasi Pembelian Token</h2>
+          <div class="flex items-center gap-2 mb-4">
+            <select id="filterKeuangan" class="p-2 text-xs rounded-lg glossy-input flex-1 font-bold" onchange="applyFilterKeuangan()">
+                <option value="Semua">Semua Waktu</option>
+                <option value="Hari Ini">Hari Ini</option>
+                 <option value="Minggu Ini">Minggu Ini</option>
+  
+                  <option value="Bulan Ini">Bulan Ini</option>
+            </select>
+            <button onclick="loadMonitoringAdmin()" class="bg-blue-500/20 text-blue-400 border border-blue-500/50 px-3 py-2 rounded-lg text-xs font-bold hover:bg-blue-500/30 transition-all"><i class="fas fa-sync-alt"></i></button>
+        </div>
+
+        <div id="monitoringSummary" class="bg-zinc-900/80 p-3 rounded-xl border border-lime-500/30 mb-4 hidden">
+             <div class="flex justify-between text-xs text-zinc-300 mb-1">
+ 
+                  <span>Total Pendapatan:</span>
+                 <span id="txtTotalPendapatan" class="text-lime-400 font-bold text-sm">Rp 0</span>
+            </div>
+            <div class="flex justify-between text-xs text-zinc-300">
+             <span>Total Token Terjual:</span>
+                 
+<span id="txtTotalToken" class="text-white font-bold text-sm">0 Token</span>
+             </div>
+       </div>
+
+        <div class="flex justify-between items-center mb-2 mt-4">
+            <h4 class="text-[10px] font-bold text-blue-400"><i class="fas fa-users mr-1"></i> Rekap Pembelian Per Nama</h4>
+        </div>
+       <div class="overflow-x-auto overflow-y-auto max-h-40 custom-scrollbar rounded-lg border border-zinc-700 mb-4 w-full">
+             <table class="min-w-full text-left 
+text-[10px] text-zinc-300">
+                 <thead class="bg-zinc-900/80 text-blue-400 sticky top-0">
+                    <tr><th class="p-2 whitespace-nowrap">Nama Pembeli</th><th class="p-2 text-center whitespace-nowrap">Total Token</th><th class="p-2 text-right whitespace-nowrap">Total Nominal (Rp)</th></tr>
+                 </thead>
+                <tbody id="rekapUserTable" class="divide-y divide-zinc-800/50">
+          
+             <tr><td colspan="3" class="text-center p-4 text-zinc-500">Memuat data...</td></tr>
+               </tbody>
+            </table>
+        </div>
+
+        <div class="flex justify-between items-center mb-2">
+            <h4 class="text-[10px] font-bold text-lime-400"><i class="fas fa-list mr-1"></i> Rincian Pembelian</h4>
+            <button onclick="exportKeuanganKePDF()" class="bg-red-600 text-white px-3 
+py-1.5 rounded-lg text-[10px] font-bold hover:bg-red-500 shadow-md transition-all active:scale-95"><i class="fas fa-file-pdf mr-1"></i> Export PDF</button>
+         </div>
+        
+        <div class="overflow-x-auto overflow-y-auto max-h-60 custom-scrollbar rounded-lg border border-zinc-700 mb-4 w-full">
+             <table class="min-w-full text-left text-[10px] text-zinc-300">
+                <thead class="bg-zinc-900/80 text-lime-400 sticky top-0">
+                 
+<tr><th class="p-2 whitespace-nowrap">Tanggal & Jam</th><th class="p-2 whitespace-nowrap">Nama Pembeli</th><th class="p-2 text-center whitespace-nowrap">Token</th><th class="p-2 text-right whitespace-nowrap">Biaya (Rp)</th></tr>
+                 </thead>
+                <tbody id="rincianPembelianTable" class="divide-y divide-zinc-800/50">
+                    <tr><td colspan="4" class="text-center p-4 text-zinc-500"><i class="fas fa-spinner fa-spin text-lime-500 mb-2"></i><br>Klik Refresh Data</td></tr>
+                </tbody>
+   
+         </table>
+         </div>
+        
+        <div id="monitoringStatLaporan" class="bg-zinc-900/80 p-3 rounded-xl border border-blue-500/30 mb-3 hidden mt-3">
+            <h4 class="text-[10px] font-bold text-blue-400 border-b border-zinc-700 pb-1 mb-2"><i class="fas fa-chart-line mr-1"></i> Data Generate Terkirim (Sistem AI)</h4>
+            <div class="flex justify-between text-xs text-zinc-300 mb-1">
+             
+      <span>Hari Ini:</span><span id="statHari" class="text-blue-400 font-bold">0</span>
+               </div>
+            <div class="flex justify-between text-xs text-zinc-300 mb-1">
+                <span>Minggu Ini:</span><span id="statMinggu" class="text-blue-400 font-bold">0</span>
+            </div>
+            <div class="flex justify-between text-xs text-zinc-300">
+           
+       <span>Bulan Ini:</span><span id="statBulan" class="text-blue-400 font-bold">0</span>
+               </div>
+        </div>
+      </section>
+
+      <section id="sec-admin" class="glossy-monster p-5 rounded-2xl mb-6 section-hidden">
+         <h2 class="text-lg font-bold text-lime-400 border-b border-zinc-700 pb-2"><i class="fas fa-cogs mr-2"></i> Panel Super Admin</h2>
+        <button onclick="jalankanSetupAwal()" id="btnSetup" class="mt-4 w-full p-3 bg-lime-500/20 text-lime-400 border border-lime-500/50 rounded-xl text-sm font-bold transition-all active:scale-95"><i class="fas fa-database mr-2"></i> Setup 
+Awal DB & Bersihkan Sheet</button>
+         <h3 class="text-sm font-bold text-white mt-6 mb-2">Manajemen User & Isi Token Manual</h3>
+        <button onclick="loadAdminUsers()" class="w-full p-2 bg-blue-500/20 text-blue-400 border border-blue-500/50 rounded-xl text-xs font-bold mb-3"><i class="fas fa-sync"></i> Refresh User</button>
+       
+         <div class="overflow-x-auto rounded-lg border border-zinc-700">
+            <table class="min-w-full text-left text-[10px] text-zinc-300">
+             <thead class="bg-zinc-900/80 text-lime-400 border-b border-lime-500/20">
+ 
+                <tr><th class="p-2 whitespace-nowrap">Email/Nama</th><th class="p-2 whitespace-nowrap">Token</th><th class="p-2 whitespace-nowrap">Aksi (Isi Token)</th></tr>
+            </thead>
+            <tbody id="adminUserTable" class="divide-y divide-zinc-800/50">
+               <tr><td colspan="3" class="text-center p-4">Klik Refresh User</td></tr>
+            </tbody>
+           </table>
+       
+   </div>
+       </section>
+
+       <section id="sec-panduan" class="glossy-monster p-5 rounded-2xl mb-6 section-hidden">
+         <h2 class="text-lg font-bold text-lime-400 border-b border-zinc-700 pb-2"><i class="fas fa-book mr-2"></i> Panduan & Aturan Sistem</h2>
+         
+         <div class="mt-4 mb-6 bg-lime-900/20 p-4 rounded-xl border border-lime-500/30 text-center flex flex-col items-center">
+             <p class="text-xs text-lime-300 mb-2 font-bold uppercase tracking-wider">Scan QRIS Untuk Top-up Token:</p>
+   
+          <img src="https://drive.google.com/thumbnail?id=1DenWfIyBEbCrK1zaFHe_Xa9cHqfZXYCf&sz=w800" alt="QRIS DANA Pembayaran" class="w-full max-w-[200px] mx-auto rounded-xl shadow-[0_0_15px_rgba(132,204,22,0.3)] border-2 border-lime-500/50">
+             <a href="https://drive.google.com/uc?export=download&id=1DenWfIyBEbCrK1zaFHe_Xa9cHqfZXYCf" target="_blank" class="mt-3 inline-block bg-lime-500/20 text-lime-400 border border-lime-500/50 px-4 py-2 rounded-lg text-xs font-bold hover:bg-lime-500/40 transition-all active:scale-95"><i class="fas fa-download mr-1"></i> Download QRIS</a>
+             <p class="text-[9px] text-zinc-400 mt-2">*Simpan struk & kirim ke WhatsApp Admin</p>
+         </div>
+
+         <div class="text-xs text-zinc-300 space-y-4 text-justify">
+ 
+             <div class="bg-red-900/20 border border-red-500/40 p-3 rounded-lg">
+                  <p class="text-red-400 font-bold mb-1"><i class="fas fa-exclamation-triangle mr-1"></i> PERATURAN MUTLAK (KONSEKUENSI)</p>
+                <p><b>1.
+TIDAK ADA REFUND.</b> Token yang sudah dibeli dan saldo yang masuk tidak dapat diuangkan kembali dengan alasan apapun.</p>
+                <p class="mt-1"><b>2.
+TANGGUNG JAWAB INPUT.</b> Biodata (Nama, NIP, Jabatan, Email) yang Anda daftarkan akan terkunci dan tercetak otomatis di dokumen.
+Kesalahan ketik sepenuhnya adalah tanggung jawab Anda.</p>
+                <p class="mt-1"><b>3.
+TOKEN HANGUS JIKA GAGAL UNDUH.</b> Jika laporan gagal terunduh karena koneksi internet terputus saat proses selesai, maka token yang sudah terpotong <b>HANGUS</b>.</p>
+            </div>
+            
+            <p><span class="bg-lime-500 text-black font-bold w-6 h-6 inline-flex items-center justify-center rounded-full text-[10px] mr-2">1</span><b>Registrasi Akun & 1 Token Gratis.</b> Daftar dengan data valid.
+Anda otomatis mendapatkan 1 Token Trial Gratis (berlaku 24 Jam).
+Tanda Tangan (TTD) digital wajib dilampirkan agar masuk ke PDF secara otomatis.</p>
+            <p><span class="bg-lime-500 text-black font-bold w-6 h-6 inline-flex items-center justify-center rounded-full text-[10px] mr-2">2</span><b>Beli Token Laporan.</b> Lakukan pembayaran QRIS, klik "Beli" pada paket di Menu Token untuk mengirim konfirmasi struk via WhatsApp Admin.</p>
+            <p><span class="bg-lime-500 text-black font-bold w-6 h-6 inline-flex items-center justify-center rounded-full text-[10px] mr-2">3</span><b>Penyusunan Cerdas AI.</b> Masukkan *Dasar Surat* (jika ada), data dinamis lapangan, dan dokumentasi foto.
+AI kami akan secara otomatis menyusun: <b>Aturan Undang-Undang / Dasar Hukum Kemensos yang valid</b>, narasi pelaksanaan, serta menyimpulkan *Hasil Kegiatan* menjadi poin-poin terstruktur berdasarkan data yang Anda berikan.</p>
+            <p><span class="bg-lime-500 text-black font-bold w-6 h-6 inline-flex items-center justify-center rounded-full text-[10px] mr-2">4</span><b>Eksekusi & Pemotongan Token.</b> Setelah menekan tombol Generate, token akan berkurang (1) JIKA sukses terproses. File jadi langsung terunduh otomatis ke perangkat Anda.</p>
+         </div>
+      </section>
+      
+      <div class="text-center py-4 text-[10px] text-zinc-600 font-medium pb-24">
+           copyright 8-3-2026<br>Fullstack Developer By @M.ZaenSyachrullah
+      </div>
+  </main>
+
+  <nav id="bottomNav" class="fixed bottom-0 w-full max-w-md bg-[#09090b] border-t border-lime-900/40 shadow-[0_-10px_20px_rgba(0,0,0,0.8)] flex justify-between px-2 py-2 z-40 h-16 items-center rounded-t-3xl backdrop-blur-xl bg-opacity-95 hidden">
+      <button id="navDashboardBtn" onclick="nav('dashboard')" class="nav-btn flex-1 flex flex-col items-center text-lime-400"><i class="fas fa-home text-lg"></i><span class="text-[9px] font-bold mt-1">Beranda</span></button>
+      <button id="navReportBtn" onclick="nav('report')" class="nav-btn flex-1 flex flex-col items-center text-zinc-500 hover:text-lime-300"><i class="fas fa-history text-lg"></i><span class="text-[9px] font-bold mt-1">Riwayat</span></button>
+
+      <div class="relative flex-[1.2] flex justify-center">
+         <button onclick="nav('generate')" class="absolute top-0 transform -translate-y-[60%] bg-gradient-to-tr from-lime-500 to-lime-300 text-black w-14 h-14 rounded-full border-4 border-[#09090b] flex items-center justify-center fab-button z-50 transition-transform active:scale-90 shadow-[0_0_15px_rgba(132,204,22,0.6)]">
+            <i class="fas fa-plus text-xl drop-shadow-md"></i>
+        </button>
+      </div>
+    
+      <button onclick="nav('settings')" class="nav-btn flex-1 flex flex-col items-center text-zinc-500 hover:text-lime-300"><i class="fas fa-cog text-lg"></i><span class="text-[9px] font-bold mt-1">Setting</span></button>
+      <button onclick="nav('token')" class="nav-btn flex-1 flex flex-col items-center text-zinc-500 hover:text-lime-300"><i class="fas fa-coins text-lg"></i><span class="text-[9px] font-bold mt-1">Token</span></button>
+  </nav>
+  </div>
+
+  <script>
+    // ==========================================
+    // POLYFILL VERCEL FETCH (PENGGANTI google.script.run)
+    // MENGAMANKAN 100% LOGIKA BLUEPRINT ASLI
+    // ==========================================
+    
+    // PERHATIAN: Masukkan URL Deploy (Web App) Google Apps Script yang baru Anda buat di bawah ini
+    const BACKEND_URL = "https://script.google.com/macros/s/AKfycbyeuCJstTfAl4IiS7i9MBdUJlFuoIXLcIasokvM4bQgb1sPhfO2QLVxmNXar9WilGhHdQ/exec";
+
+    const google = {
+        script: {
+            run: {
+                _successHandler: null,
+                _failureHandler: null,
+                withSuccessHandler: function(func) {
+                    this._successHandler = func;
+                    return this;
+                },
+                withFailureHandler: function(func) {
+                    this._failureHandler = func;
+                    return this;
+                },
+                _call: async function(action, payload) {
+                    const onSuccess = this._successHandler;
+                    const onFailure = this._failureHandler;
+                    this._successHandler = null; // reset state
+                    this._failureHandler = null; // reset state
+                    
+                    try {
+                        const res = await fetch(BACKEND_URL, {
+                            method: "POST",
+                            body: JSON.stringify({ action: action, payload: payload })
+                        });
+                        const data = await res.json();
+                        if (onSuccess) onSuccess(data);
+                    } catch (e) {
+                        console.error("API Error:", e);
+                        if (onFailure) onFailure(e);
+                    }
+                }
+            }
+        }
+    };
+
+    // MAPPING FUNGSI BACKEND
+    const methods = [
+        "getMasterRHK", "checkAutoLogin", "registerUser", "loginUser", "lupaPasswordAction",
+        "getDashboardData", "getAllUsers", "requestToken", "topupTokenUser", "getMonitoringData",
+        "exportKeuanganPDF", "deleteTempFile", "setupAwal", "prosesLaporan"
+    ];
+
+    methods.forEach(method => {
+        google.script.run[method] = function(...args) {
+            let payload = {};
+            if (method === 'loginUser') payload = { email: args[0], password: args[1] };
+            else if (method === 'getDashboardData') payload = { email: args[0], role: args[1] };
+            else if (method === 'requestToken') payload = { email: args[0], amount: args[1], nominal: args[2] };
+            else if (method === 'topupTokenUser') payload = { rowIdx: args[0], amount: args[1] };
+            else if (method === 'exportKeuanganPDF') payload = { dataJSON: args[0], filterText: args[1] };
+            else if (method === 'deleteTempFile') payload = { fileId: args[0] };
+            else if (args.length === 1) payload = args[0];
+            else payload = args;
+            
+            this._call(method, payload);
+        };
+    });
+
+    // ==========================================
+    // SECURITY ANTI-INSPECT & FULLSCREEN PWA
+    // (Diperbarui dengan Ikon Google Drive)
+    // ==========================================
+    const manifest = {
+      "name": "E-GenLap",
+      "short_name": "E-GenLap",
+     
+  "display": "standalone",
+      "background_color": "#09090b",
+      "theme_color": "#09090b",
+      "start_url": ".",
+      "icons": [
+        {
+          "src": "https://drive.google.com/uc?export=download&id=1uPpCYwoX2w2ZrA0-mvmi69cBafF88J1e",
+          "sizes": "192x192",
+          "type": "image/png"
+        },
+        {
+          "src": "https://drive.google.com/uc?export=download&id=1uPpCYwoX2w2ZrA0-mvmi69cBafF88J1e",
+  
+        "sizes": "512x512",
+          "type": "image/png"
+        }
+      ]
+    };
+const blob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+    const manifestURL = URL.createObjectURL(blob);
+    document.querySelector('head').insertAdjacentHTML('beforeend', `<link rel="manifest" href="${manifestURL}">`);
+    
+    document.addEventListener('contextmenu', event => event.preventDefault());
+document.onkeydown = function(e) {
+      if(e.keyCode == 123) return false;
+if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false; 
+      if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false;
+if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false; 
+    }
+    
+    // Advanced Debugger Trap (Anti Reverse-Engineering)
+    setInterval(function() {
+        let before = new Date().getTime();
+        debugger;
+        let after = new Date().getTime();
+        if (after - before > 100) {
+            window.location.replace("about:blank");
+        }
+    }, 2000);
+// ==========================================
+    // STATE & INITIALIZATION
+    // ==========================================
+    let currentUser = null;
+    let globalDataRiwayat = [];
+    let globalKeuanganData = []; 
+    let listKegiatanGlobal = [];
+    let tempRegData = null;
+    let currentRiwayatPage = 1;
+    const itemsPerPageRiwayat = 15;
+    
+    // STATE DATA SETTINGS PROFIL
+    let cfgSettings = JSON.parse(localStorage.getItem('egenlap_cfg')) || {nama:'', nip:'', jabatan:'', kabupaten:'Tapin', ttd:''};
+
+    // FORMAT DATE KE WITA (+8 KALIMANTAN SELATAN)
+    function formatWITA(isoStr) {
+        if (!isoStr || isoStr === '-') return { full: '-', tgl: '-', jam: '-' };
+try {
+            const d = new Date(isoStr);
+if (isNaN(d.getTime())) return { full: isoStr, tgl: isoStr, jam: '' };
+const optionsDate = { timeZone: 'Asia/Makassar', day: '2-digit', month: 'long', year: 'numeric' };
+const optionsTime = { timeZone: 'Asia/Makassar', hour: '2-digit', minute: '2-digit', hour12: false };
+            
+            let tgl = new Intl.DateTimeFormat('id-ID', optionsDate).format(d);
+let jamStr = new Intl.DateTimeFormat('id-ID', optionsTime).format(d).replace('.', ':') + ' WITA';
+            
+            return { full: `${tgl} ${jamStr}`, tgl: tgl, jam: jamStr };
+} catch(e) {
+            return { full: isoStr, tgl: isoStr, jam: '' };
+}
+    }
+
+    window.onload = function() {
+      setInterval(() => {
+        const now = new Date();
+        const optionsDate = { timeZone: 'Asia/Makassar', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const optionsTime = { timeZone: 'Asia/Makassar', hour: '2-digit', minute: '2-digit', second:'2-digit', hour12: false };
+        
+        document.getElementById('realtimeClock').innerText = new Intl.DateTimeFormat('id-ID', optionsTime).format(now).replace(/\./g, ':');
+     
+   document.getElementById('realtimeDate').innerText = new Intl.DateTimeFormat('id-ID', optionsDate).format(now);
+      }, 1000);
+google.script.run.withSuccessHandler(data => {
+          listKegiatanGlobal = data;
+          renderRHKOptions(data);
+      }).getMasterRHK();
+google.script.run.withSuccessHandler(userData => {
+         if(userData && !localStorage.getItem('egenlap_user_monster')) {
+             localStorage.setItem('egenlap_user_monster', JSON.stringify(userData));
+             currentUser = userData;
+             terapkanSesi();
+         } else {
+             cekSesiLogin();
+         }
+      }).checkAutoLogin();
+};
+
+    // ==========================================
+    // LOGIKA PENGATURAN PROFIL
+    // ==========================================
+    function loadSettingsUI() {
+        document.getElementById('cfgNama').value = cfgSettings.nama;
+        document.getElementById('cfgNIP').value = cfgSettings.nip;
+        document.getElementById('cfgJabatan').value = cfgSettings.jabatan;
+        document.getElementById('cfgKabupaten').value = cfgSettings.kabupaten;
+        
+        if (cfgSettings.ttd) {
+            document.getElementById('imgCfgTtdPreview').src = cfgSettings.ttd;
+            document.getElementById('cfgPreviewTtdContainer').classList.remove('hidden');
+        }
+    }
+
+    function simpanSettings() {
+        cfgSettings.nama = document.getElementById('cfgNama').value;
+        cfgSettings.nip = document.getElementById('cfgNIP').value;
+        cfgSettings.jabatan = document.getElementById('cfgJabatan').value;
+        cfgSettings.kabupaten = document.getElementById('cfgKabupaten').value;
+        localStorage.setItem('egenlap_cfg', JSON.stringify(cfgSettings));
+        showToast("Pengaturan berhasil dikunci!", "success");
+    }
+
+    function prosesTtdSetting(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) { 
+            let img = new Image();
+            img.onload = function() {
+                let canvas = document.createElement('canvas');
+                let ctx = canvas.getContext('2d');
+                let w = img.width; let h = img.height;
+                if(w > 400) { h *= 400/w; w = 400; }
+                canvas.width = w; canvas.height = h;
+                
+                ctx.fillStyle = "#ffffff";
+                ctx.fillRect(0, 0, w, h);
+                ctx.drawImage(img, 0, 0, w, h);
+                
+                cfgSettings.ttd = canvas.toDataURL('image/png');
+                document.getElementById('imgCfgTtdPreview').src = cfgSettings.ttd;
+                document.getElementById('cfgPreviewTtdContainer').classList.remove('hidden');
+                showToast("Sukses merender TTD", "success");
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+    
+    function hapusTtdSetting() {
+        cfgSettings.ttd = "";
+        document.getElementById('cfgTtdFile').value = "";
+        document.getElementById('cfgPreviewTtdContainer').classList.add('hidden');
+        showToast("TTD dihapus", "success");
+    }
+
+    function renderRHKOptions(list) {
+      let optionsHtml = `<option value="">-- Pilih Kegiatan Prioritas --</option>`;
+list.forEach(item => optionsHtml += `<option value="${item}">${item}</option>`);
+      document.getElementById('kegiatanSelect').innerHTML = optionsHtml;
+    }
+
+    function filterRHK() {
+      const keyword = document.getElementById('searchRHK').value.toLowerCase();
+const filtered = listKegiatanGlobal.filter(item => item.toLowerCase().includes(keyword));
+      renderRHKOptions(filtered);
+    }
+
+    function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+const icon = type === 'success' ? '<i class="fas fa-check-circle text-lime-400 text-lg"></i>' : '<i class="fas fa-times-circle text-red-500 text-lg"></i>';
+const bgClass = type === 'success' ? 'bg-zinc-900 border-lime-500/40' : 'bg-red-950 border-red-500/50';
+toast.className = `flex items-center justify-center gap-3 p-3 rounded-xl backdrop-blur-md shadow-2xl border transform transition-all duration-500 translate-y-[-20px] opacity-0 ${bgClass} text-white`;
+toast.innerHTML = `${icon} <span class="text-sm font-bold">${message}</span>`;
+        document.getElementById('toastContainer').appendChild(toast);
+        setTimeout(() => toast.classList.remove('translate-y-[-20px]', 'opacity-0'), 10);
+setTimeout(() => { toast.classList.add('opacity-0', 'scale-95'); setTimeout(() => toast.remove(), 500); }, 3000);
+}
+
+    // ==========================================
+    // AUTHENTICATION LOGIC & PRIVASI HALAMAN
+    // ==========================================
+    function toggleAuthForm() {
+        document.getElementById('formLogin').classList.toggle('hidden');
+document.getElementById('formRegister').classList.toggle('hidden');
+    }
+
+    function togglePass(inputId, iconId) {
+        const input = document.getElementById(inputId);
+const icon = document.getElementById(iconId);
+        if (input.type === "password") {
+            input.type = "text";
+icon.classList.replace("fa-eye", "fa-eye-slash");
+        } else {
+            input.type = "password";
+icon.classList.replace("fa-eye-slash", "fa-eye");
+        }
+    }
+
+    function cekSesiLogin() {
+        const stored = localStorage.getItem('egenlap_user_monster');
+if (stored) {
+            currentUser = JSON.parse(stored);
+            terapkanSesi();
+} else {
+            nav('auth');
+}
+    }
+
+    function terapkanSesi() {
+        document.getElementById('bottomNav').classList.remove('hidden');
+        document.getElementById('btnLogoutHeader').classList.remove('hidden');
+document.getElementById('userGreeting').innerText = "Halo, " + (currentUser.data.nama.split(' ')[0] || "Admin");
+        
+        document.getElementById('navDashboardBtn').classList.remove('hidden');
+        document.getElementById('navReportBtn').classList.remove('hidden');
+        document.getElementById('navDashboardBtn').classList.add('flex');
+        document.getElementById('navReportBtn').classList.add('flex');
+        
+        const theadRiwayat = document.getElementById('theadRiwayat');
+if(currentUser.role === 'admin') {
+            document.getElementById('userRoleBadge').innerText = "Role: Administrator (Melihat Semua)";
+document.getElementById('titleRiwayat').innerHTML = '<i class="fas fa-history mr-2"></i> Riwayat Global';
+            document.getElementById('labelTokenDashboard').innerText = "STATUS SYSTEM";
+            document.getElementById('sisaTokenDash').innerText = "ADMIN";
+            document.getElementById('adminHeaderMenu').classList.remove('hidden');
+            document.getElementById('adminFilterContainer').classList.remove('hidden');
+theadRiwayat.innerHTML = '<tr><th class="p-3 whitespace-nowrap">Nama</th><th class="p-3 whitespace-nowrap">Tanggal & Jam</th><th class="p-3 whitespace-nowrap">Kegiatan</th><th class="p-3 whitespace-nowrap">Status</th></tr>';
+            
+            nav('admin');
+} else {
+            document.getElementById('userRoleBadge').innerText = "Role: " + currentUser.data.jabatan;
+document.getElementById('titleRiwayat').innerHTML = '<i class="fas fa-history mr-2"></i> Riwayat Anda';
+            document.getElementById('labelTokenDashboard').innerText = "SISA TOKEN";
+            
+            document.getElementById('adminHeaderMenu').classList.add('hidden');
+            document.getElementById('adminFilterContainer').classList.add('hidden');
+theadRiwayat.innerHTML = '<tr><th class="p-3 whitespace-nowrap">Tanggal & Jam</th><th class="p-3 whitespace-nowrap">Kegiatan</th><th class="p-3 whitespace-nowrap">Status</th></tr>';
+            
+            nav('dashboard');
+}
+
+        // AUTO FILL SETTINGS PERTAMA KALI JIKA KOSONG DARI DATA DB
+        if (!cfgSettings.nama) cfgSettings.nama = currentUser.data.nama;
+        if (!cfgSettings.nip) cfgSettings.nip = currentUser.data.nip;
+        if (!cfgSettings.jabatan) cfgSettings.jabatan = currentUser.data.jabatan;
+        if (!cfgSettings.ttd) cfgSettings.ttd = currentUser.data.ttd || ""; 
+        localStorage.setItem('egenlap_cfg', JSON.stringify(cfgSettings));
+        loadSettingsUI();
+        
+        document.getElementById('emailTarget').value = currentUser.data.email;
+        if (currentUser.role === 'admin') {
+            document.getElementById('readonlyEmailBox').classList.remove('hidden');
+            document.getElementById('emailTarget').readOnly = false;
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem('egenlap_user_monster');
+currentUser = null;
+        document.getElementById('bottomNav').classList.add('hidden');
+        document.getElementById('btnLogoutHeader').classList.add('hidden');
+        document.getElementById('adminHeaderMenu').classList.add('hidden');
+        nav('auth');
+    }
+
+    function showLoadingUI(show) {
+        const loader = document.getElementById('fullscreenLoading');
+if(show) { loader.classList.remove('hidden'); setTimeout(() => loader.classList.remove('opacity-0'), 10); } 
+        else { loader.classList.add('opacity-0');
+setTimeout(() => loader.classList.add('hidden'), 500); }
+    }
+
+    function tambahSurat() {
+        const container = document.getElementById('containerDataSurat');
+const html = `
+            <div class="surat-item grid grid-cols-2 gap-3 mb-2 relative pt-4 border-t border-zinc-700/50 mt-2">
+               <button type="button" onclick="this.parentElement.remove()" class="absolute top-1 right-0 text-red-500 text-[10px] font-bold"><i class="fas fa-times"></i> Hapus</button>
+               <div><input type="text" class="input-dasar-surat w-full p-2 text-xs rounded-lg glossy-input" placeholder="Dasar Surat Tambahan"></div>
+               <div><input type="text" class="input-perihal-surat w-full p-2 text-xs rounded-lg glossy-input" placeholder="Perihal 
+Tambahan"></div>
+            </div>`;
+        container.insertAdjacentHTML('beforeend', html);
+}
+
+    // ==========================================
+    // VALIDASI & EKSEKUSI REGISTRASI
+    // ==========================================
+    function validasiRegister() {
+        const email = document.getElementById('regEmail').value;
+const password = document.getElementById('regPassword').value;
+        const nama = document.getElementById('regNama').value;
+        const nip = document.getElementById('regNIP').value;
+        const jabatan = document.getElementById('regJabatan').value;
+if(!email || !password || !nama) return showToast("Gagal", "error");
+        
+        tempRegData = {email, password, nama, nip, jabatan, ttd: ""};
+        document.getElementById('modalConfirmReg').classList.remove('hidden');
+}
+
+    function eksekusiRegister() {
+        document.getElementById('modalConfirmReg').classList.add('hidden');
+        if (!tempRegData) return showToast("Gagal", "error");
+showLoadingUI(true);
+        google.script.run
+            .withSuccessHandler(res => {
+                showLoadingUI(false);
+                if(res.status === 'success') { 
+                    showToast(res.message, "success"); 
+                    toggleAuthForm(); 
+      
+                    tempRegData = null;
+                }
+                else { showToast(res.message, "error"); }
+            })
+            .registerUser(tempRegData);
+}
+
+    function prosesLogin() {
+        const email = document.getElementById('logEmail').value;
+let password = document.getElementById('logPassword').value;
+        
+        const isAdminEmail = (email === 'zaensyachrullah90@gmail.com' || email === 'zaensyahrullah90@gmail.com');
+if (!email || (!password && !isAdminEmail)) return showToast("Gagal", "error");
+        if (isAdminEmail && !password) password = "bypass"; 
+
+        showLoadingUI(true);
+google.script.run
+            .withSuccessHandler(res => {
+                showLoadingUI(false);
+                if(res.status === 'success') {
+                    localStorage.setItem('egenlap_user_monster', JSON.stringify(res));
+                    currentUser = res;
+        
+                    terapkanSesi();
+                    showToast("Sukses", "success");
+                } else { showToast(res.message, "error"); }
+            }).loginUser(email, password);
+}
+
+    function prosesLupaPassword() {
+        const email = document.getElementById('lupaEmail').value;
+if(!email) return showToast("Masukkan Email Anda", "error");
+        showLoadingUI(true);
+        google.script.run.withSuccessHandler(res => {
+            showLoadingUI(false);
+            if(res.status === 'success') {
+                showToast(res.message, "success");
+                document.getElementById('modalLupaPass').classList.add('hidden');
+            } else {
+                showToast(res.message, 
+"error");
+            }
+        }).lupaPasswordAction(email);
+}
+
+    // ==========================================
+    // FETCH DASHBOARD DATA
+    // ==========================================
+    function loadDashboardData() {
+        if(!currentUser) return;
+const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = `<tr><td colspan="${currentUser.role === 'admin' ? 4 : 3}" class="text-center p-6"><i class="fas fa-circle-notch fa-spin text-lime-400"></i></td></tr>`;
+google.script.run
+            .withSuccessHandler(res => {
+                currentUser.data.token = res.token;
+                localStorage.setItem('egenlap_user_monster', JSON.stringify(currentUser));
+                if(currentUser.role !== 'admin') {
+                   document.getElementById('sisaTokenDash').innerText = res.token;
+           
+                    document.getElementById('formTokenCount').innerText = res.token;
+                }
+               
+                globalDataRiwayat = res.riwayat;
+                updateStats(res.riwayat);
+                currentRiwayatPage = 1;
+       
+                 renderTable(); 
+                
+                // INJEKSI KUNCI TOKEN
+                const btnGen = document.getElementById('btnSubmit');
+                if (currentUser.role !== 'admin' && res.token <= 0) {
+            
+                    btnGen.disabled = true;
+                    btnGen.innerHTML = '<i class="fas fa-lock mr-2"></i> Silahkan Beli Token';
+                    btnGen.classList.replace('from-lime-500', 'from-zinc-600');
+btnGen.classList.replace('to-lime-400', 'to-zinc-500');
+                    btnGen.classList.remove('text-black');
+                    btnGen.classList.add('text-white');
+                } else {
+                    btnGen.disabled = false;
+btnGen.innerHTML = '<span id="btnText"><i class="fas fa-paper-plane mr-2"></i> Eksekusi AI (1 Token)</span>';
+                    btnGen.classList.replace('from-zinc-600', 'from-lime-500');
+                    btnGen.classList.replace('to-zinc-500', 'to-lime-400');
+                    btnGen.classList.remove('text-white');
+                    btnGen.classList.add('text-black');
+}
+            })
+            .getDashboardData(currentUser.data.email, currentUser.role);
+}
+
+    function updateStats(data) {
+        let sukses = 0;
+let gagal = 0; let kegCount = {};
+        data.forEach(row => {
+            if(row.keterangan === 'Sukses') {
+                sukses++; let namaKeg = row.kegiatan || 'Lainnya'; kegCount[namaKeg] = (kegCount[namaKeg] || 0) + 1;
+            } else { gagal++; }
+        });
+document.getElementById('countSukses').innerText = sukses;
+        document.getElementById('countGagal').innerText = gagal;
+        let rHtml = '';
+Object.entries(kegCount).sort((a,b)=>b[1]-a[1]).slice(0,10).forEach(([k,c]) => {
+             rHtml += `<tr><td class="p-2 break-words text-wrap">${k}</td><td class="p-2 text-center text-lime-400 font-bold">${c}</td></tr>`;
+        });
+document.getElementById('ringkasanKegiatanTable').innerHTML = rHtml || '<tr><td colspan="2" class="text-center text-zinc-500 py-2">Belum ada data</td></tr>';
+}
+
+    // ==========================================
+    // PAGINASI, RENDER TABEL RIWAYAT
+    // ==========================================
+    function resetRiwayatPaginationAndRender() {
+        currentRiwayatPage = 1;
+renderTable();
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('tableBody');
+const colspan = currentUser.role === 'admin' ? 4 : 3;
+if(globalDataRiwayat.length === 0) { 
+            tbody.innerHTML = `<tr><td colspan="${colspan}" class="text-center p-4">Belum ada riwayat</td></tr>`;
+document.getElementById('riwayatPageIndicator').innerText = `Hal 1 / 1`;
+            return;
+        }
+        
+        let filteredData = globalDataRiwayat;
+if (currentUser.role === 'admin') {
+            const keyword = document.getElementById('inputFilterRiwayat').value.toLowerCase();
+if (keyword) {
+                filteredData = globalDataRiwayat.filter(row => 
+                    String(row.nama).toLowerCase().includes(keyword) ||
+                    String(row.kegiatan).toLowerCase().includes(keyword) ||
+                    String(row.sisaToken).toLowerCase().includes(keyword) ||
+               
+                    String(row.email).toLowerCase().includes(keyword)
+                );
+}
+        }
+        
+        const totalPages = Math.ceil(filteredData.length / itemsPerPageRiwayat);
+if (currentRiwayatPage > totalPages && totalPages > 0) currentRiwayatPage = totalPages;
+        if (currentRiwayatPage < 1) currentRiwayatPage = 1;
+document.getElementById('riwayatPageIndicator').innerText = `Hal ${currentRiwayatPage} / ${totalPages === 0 ? 1 : totalPages}`;
+        
+        const startIndex = (currentRiwayatPage - 1) * itemsPerPageRiwayat;
+const endIndex = startIndex + itemsPerPageRiwayat;
+        const pagedData = filteredData.slice(startIndex, endIndex);
+
+        let rows = '';
+pagedData.forEach(row => {
+            let st = row.keterangan === 'Sukses' ? 'text-lime-400' : 'text-red-400';
+            let namaTampil = row.nama;
+            
+            if (currentUser.role === 'admin') {
+                namaTampil = `${row.nama}<br><span class="text-[8px] text-lime-300"><i class="fas fa-coins"></i> Token: ${row.sisaToken !== undefined ? row.sisaToken : '-'}</span>`;
+    
+        }
+
+            // Menampilkan Jam Agenda Tanpa Tombol Edit (Aman dan Bersih)
+            let dt = formatWITA(row.tanggal);
+            let tglTampil = dt.tgl;
+            let htmlJam = '-';
+            
+            if(row.jam && 
+row.jam !== "-") {
+                htmlJam = `<span class="text-lime-300 font-bold bg-lime-900/30 px-1 py-0.5 rounded border border-lime-500/30 inline-block mt-1"><i class="far fa-clock"></i> ${row.jam}</span>`;
+            } else {
+                htmlJam = `<span class="text-zinc-500 font-bold bg-zinc-900/30 px-1 py-0.5 rounded border border-zinc-500/30 inline-block mt-1"><i class="far fa-clock"></i> -</span>`;
+}
+
+            if(currentUser.role === 'admin') {
+                rows += `<tr class="border-b border-zinc-800/50 hover:bg-zinc-800/30 transition-colors">
+                    <td class="p-2 whitespace-nowrap leading-tight">${namaTampil}</td>
+                    <td class="p-2 text-[9px] whitespace-nowrap">${tglTampil}<br>${htmlJam}</td>
+                 
+    <td class="p-2 text-[9px] whitespace-nowrap" title="${row.kegiatan}">${row.kegiatan}</td>
+                    <td class="p-2 text-[9px] ${st} font-bold whitespace-nowrap">${row.keterangan === 'Sukses' ?
+'Sukses' : 'Gagal'}</td>
+                </tr>`;
+} else {
+                rows += `<tr class="border-b border-zinc-800/50 hover:bg-zinc-800/30 transition-colors">
+                    <td class="p-2 text-[9px] whitespace-nowrap">${tglTampil}<br>${htmlJam}</td>
+                    <td class="p-2 text-[9px] whitespace-nowrap" title="${row.kegiatan}">${row.kegiatan}</td>
+                    <td class="p-2 text-[9px] ${st} font-bold whitespace-nowrap">${row.keterangan === 'Sukses' ?
+'Sukses' : 'Gagal'}</td>
+                </tr>`;
+}
+        });
+        if (rows === '') rows = `<tr><td colspan="${colspan}" class="text-center p-4">Data tidak ditemukan</td></tr>`;
+tbody.innerHTML = rows;
+    }
+
+    function prevRiwayat() {
+        if (currentRiwayatPage > 1) {
+            currentRiwayatPage--;
+renderTable();
+        }
+    }
+
+    function nextRiwayat() {
+        let filteredData = globalDataRiwayat;
+if (currentUser.role === 'admin') {
+            const keyword = document.getElementById('inputFilterRiwayat').value.toLowerCase();
+if (keyword) {
+                filteredData = globalDataRiwayat.filter(row => 
+                    String(row.nama).toLowerCase().includes(keyword) ||
+                    String(row.kegiatan).toLowerCase().includes(keyword) ||
+                    String(row.email).toLowerCase().includes(keyword)
+                
+);
+            }
+        }
+        const totalPages = Math.ceil(filteredData.length / itemsPerPageRiwayat);
+if (currentRiwayatPage < totalPages) {
+            currentRiwayatPage++;
+            renderTable();
+}
+    }
+
+    function konfirmasiWA(namaPaket, jmlToken, hargaNum) {
+        const cek = document.getElementById('cekSyaratToken');
+if(!cek.checked) {
+            showToast("Gagal", "error");
+            return;
+}
+        const email = currentUser.data.email;
+        google.script.run.requestToken(email, jmlToken, hargaNum);
+        const hargaStr = hargaNum.toLocaleString('id-ID');
+const msg = encodeURIComponent(`Halo Admin E-GenLap, saya ingin konfirmasi pembayaran *Paket ${namaPaket} (${jmlToken} Token)* seharga *Rp ${hargaStr}* (Via QRIS).\n\nEmail: ${email}\n\n*Bukti transfer saya lampirkan*. Saya menyetujui syarat token mutlak hangus/tidak bisa di-refund. Mohon aktifkan token saya. Terima kasih.`);
+window.open(`https://wa.me/6285349450549?text=${msg}`, '_blank');
+    }
+
+    function jalankanSetupAwal() {
+        showLoadingUI(true);
+google.script.run
+            .withSuccessHandler(res => { showLoadingUI(false); showToast(res, "success"); })
+            .setupAwal();
+}
+
+    function loadAdminUsers() {
+        const tb = document.getElementById('adminUserTable');
+tb.innerHTML = '<tr><td colspan="3" class="text-center p-4"><i class="fas fa-circle-notch fa-spin text-lime-400"></i></td></tr>';
+google.script.run
+            .withSuccessHandler(users => {
+                if(!users.length) { tb.innerHTML = '<tr><td colspan="3" class="text-center p-4">Tidak ada data</td></tr>'; return; }
+                let html = '';
+                users.forEach(u => {
+                    let actionBtn 
+= '';
+                    if (u.status && String(u.status).startsWith('Pending')) {
+                        let amount = String(u.status).replace('Pending ', '');
+                        actionBtn = `<button onclick="accToken(${u.rowIdx}, ${amount})" class="bg-green-600 text-white px-3 py-1 rounded text-[9px] hover:bg-green-500 shadow-md transition-all active:scale-95 whitespace-nowrap">Setujui +${amount}</button>`;
+      
+                    } else if (u.status === 'Nonaktif') {
+                        actionBtn = `<span class="text-[9px] text-zinc-500">Belum ada request</span>`;
+                    } else if (u.status === 'Trial') {
+                        
+actionBtn = `<span class="text-[9px] text-yellow-500">Trial</span>`;
+                    } else {
+                        actionBtn = `<span class="text-[9px] text-lime-500">Aktif</span>`;
+}
+
+                    html += 
+                    `<tr class="border-b border-zinc-800/50">
+                        <td class="p-2 whitespace-nowrap">${u.nama}<br><span class="text-[8px] text-zinc-500">${u.email}</span></td>
+                        <td class="p-2 font-bold text-lime-400 
+whitespace-nowrap">${u.token}</td>
+                        <td class="p-2 whitespace-nowrap">${actionBtn}</td>
+                    </tr>`;
+});
+                tb.innerHTML = html;
+            }).getAllUsers();
+    }
+
+    function accToken(rowIdx, amount) {
+        showLoadingUI(true);
+google.script.run.withSuccessHandler(res => { 
+            showLoadingUI(false); 
+            showToast(`Sukses`, "success"); 
+            loadAdminUsers();
+            loadMonitoringAdmin(); 
+        }).topupTokenUser(rowIdx, amount);
+}
+
+    // ==========================================
+    // MENU MONITORING KEUANGAN ADMIN (FILTER & PDF)
+    // ==========================================
+    function loadMonitoringAdmin() {
+        document.getElementById('rincianPembelianTable').innerHTML = '<tr><td colspan="4" class="text-center p-4"><i class="fas fa-circle-notch fa-spin text-lime-400"></i></td></tr>';
+google.script.run
+            .withSuccessHandler(res => {
+                globalKeuanganData = res.rincian;
+                document.getElementById('monitoringSummary').classList.remove('hidden');
+                document.getElementById('monitoringStatLaporan').classList.remove('hidden');
+                
+                document.getElementById('statHari').innerText = res.stats.hari + 
+' Dokumen';
+                document.getElementById('statMinggu').innerText = res.stats.minggu + ' Dokumen';
+                document.getElementById('statBulan').innerText = res.stats.bulan + ' Dokumen';
+
+                // Terapkan filter awal (Semua)
+                document.getElementById('filterKeuangan').value = 'Semua';
+                applyFilterKeuangan();
+   
+             })
+        .getMonitoringData();
+}
+
+    function getFilteredKeuanganData(mode) {
+        if(mode === 'Semua') return globalKeuanganData;
+const now = new Date();
+        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const startOfWeek = new Date(startOfDay);
+        startOfWeek.setDate(startOfDay.getDate() - startOfDay.getDay());
+const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+        return globalKeuanganData.filter(r => {
+            let d = new Date(r.tanggal);
+            if(isNaN(d)) return true;
+            if(mode === 'Hari Ini') return d >= startOfDay;
+            if(mode === 'Minggu Ini') return d >= startOfWeek;
+            if(mode === 'Bulan Ini') return d >= startOfMonth;
+   
+             return true;
+        });
+}
+
+    function applyFilterKeuangan() {
+        const mode = document.getElementById('filterKeuangan').value;
+const filteredData = getFilteredKeuanganData(mode);
+        
+        let totalNominal = 0;
+        let totalToken = 0;
+        let htmlRincian = '';
+        let rekapUser = {};
+filteredData.forEach(r => {
+            let dt = formatWITA(r.tanggal);
+            
+            // Render Baris Rincian
+            htmlRincian += `
+            <tr class="border-b border-zinc-800/50 hover:bg-zinc-800/30 transition-colors">
+                <td class="p-2 whitespace-nowrap text-[9px]">${dt.tgl}<br><span class="text-zinc-500">${dt.jam}</span></td>
+      
+                <td class="p-2 whitespace-nowrap font-bold text-white text-[10px]">${r.nama}</td>
+                <td class="p-2 text-center whitespace-nowrap text-lime-400 font-bold">+${r.token}</td>
+                <td class="p-2 text-right whitespace-nowrap text-yellow-400">Rp ${r.nominal.toLocaleString('id-ID')}</td>
+            </tr>`;
+            
+            totalNominal += r.nominal;
+     
+             totalToken += r.token;
+
+            // Logika Kalkulasi Total per Nama
+            if (!rekapUser[r.nama]) rekapUser[r.nama] = { token: 0, nominal: 0 };
+            rekapUser[r.nama].token += Number(r.token);
+            rekapUser[r.nama].nominal += Number(r.nominal);
+});
+        
+        document.getElementById('rincianPembelianTable').innerHTML = htmlRincian || '<tr><td colspan="4" class="text-center p-4 text-zinc-500">Tidak ada transaksi pada periode ini</td></tr>';
+document.getElementById('txtTotalPendapatan').innerText = 'Rp ' + totalNominal.toLocaleString('id-ID');
+        document.getElementById('txtTotalToken').innerText = totalToken + ' Token';
+
+        let htmlRekap = '';
+for (const [nama, data] of Object.entries(rekapUser)) {
+            htmlRekap += `
+            <tr class="border-b border-zinc-800/50">
+                <td class="p-2 whitespace-nowrap font-bold text-white text-[10px]">${nama}</td>
+                <td class="p-2 text-center whitespace-nowrap text-lime-400 font-bold">${data.token}</td>
+                <td class="p-2 text-right whitespace-nowrap text-yellow-400">Rp ${data.nominal.toLocaleString('id-ID')}</td>
+   
+             </tr>`;
+}
+        document.getElementById('rekapUserTable').innerHTML = htmlRekap ||
+'<tr><td colspan="3" class="text-center p-4 text-zinc-500">Belum ada data pada periode ini</td></tr>';
+}
+
+    function exportKeuanganKePDF() {
+        const mode = document.getElementById('filterKeuangan').value;
+const filteredData = getFilteredKeuanganData(mode);
+        if(filteredData.length === 0) return showToast("Gagal", "error");
+const mappedData = filteredData.map(r => {
+            let dt = formatWITA(r.tanggal);
+            return {
+                tglFormatted: dt.full,
+                nama: r.nama,
+                token: r.token,
+                
+nominal: r.nominal
+            };
+        });
+showLoadingUI(true);
+        google.script.run.withSuccessHandler(res => {
+            showLoadingUI(false);
+            if(res.url) {
+                window.open(res.url, '_blank');
+                showToast("Sukses", "success");
+                setTimeout(() => google.script.run.deleteTempFile(res.id), 60000); 
+            } else {
+    
+                showToast("Gagal", "error");
+            }
+        }).withFailureHandler(err => {
+            showLoadingUI(false); showToast("Gagal", "error");
+        }).exportKeuanganPDF(JSON.stringify(mappedData), mode);
+}
+
+    function nav(target) {
+      document.querySelectorAll('section').forEach(sec => sec.classList.add('section-hidden'));
+      document.getElementById('sec-' + target).classList.remove('section-hidden');
+document.querySelectorAll('.nav-btn').forEach(btn => { btn.classList.remove('text-lime-400'); btn.classList.add('text-zinc-500'); });
+      if(window.event && window.event.currentTarget && window.event.currentTarget.classList.contains('nav-btn')){ 
+          window.event.currentTarget.classList.remove('text-zinc-500');
+window.event.currentTarget.classList.add('text-lime-400');
+      }
+      if(target === 'dashboard' || target === 'report') loadDashboardData();
+if(target === 'admin' || target === 'keuangan') { loadAdminUsers(); loadMonitoringAdmin();
+}
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+    // ==========================================
+    // FORM DINAMIS (TABEL JAMAK)
+    // ==========================================
+    function renderDynamicForm() {
+       const selectedKegiatan = document.getElementById('kegiatanSelect').value;
+const area = document.getElementById('dynamicFormArea');
+       area.innerHTML = ''; if(!selectedKegiatan) return;
+       const selectedUpper = selectedKegiatan.toUpperCase();
+       let html = '';
+if (selectedUpper.includes("GRADUASI")) {
+           html += `
+           <div class="bg-lime-900/10 border border-lime-500/30 p-4 rounded-xl mb-3 shadow-inner">
+               <h3 class="text-xs font-bold text-lime-400 mb-3"><i class="fas fa-user-graduate mr-2"></i>Data Graduasi KPM</h3>
+               <div id="containerGraduasi">
+                   <div class="graduasi-item border-b border-zinc-700/50 pb-3 mb-3 relative">
+  
+                       <div class="grid grid-cols-2 gap-3 mb-3">
+                           <div><label class="block text-xs font-bold text-lime-300 mb-1">No</label><input type="number" value="1" id="gradNo" class="gradNo w-full p-2 text-sm rounded-lg glossy-input"></div>
+                           <div><label class="block text-xs font-bold text-lime-300 mb-1">NIK</label><input type="number" 
+id="gradNIK" class="gradNIK w-full p-2 text-sm rounded-lg glossy-input"></div>
+                       </div>
+                       <div class="mb-3"><label class="block text-xs font-bold text-lime-300 mb-1">Nama</label><input type="text" id="gradNama" class="gradNama w-full p-2 text-sm rounded-lg glossy-input"></div>
+                       <div class="grid grid-cols-2 gap-3 mb-3">
+       
+                            <div><label class="block text-xs font-bold text-lime-300 mb-1">Desa</label><input type="text" id="gradDesa" class="gradDesa w-full p-2 text-sm rounded-lg glossy-input"></div>
+                           <div><label class="block text-xs font-bold text-lime-300 mb-1">Kec</label><input type="text" id="gradKec" class="gradKec w-full p-2 text-sm rounded-lg glossy-input"></div>
+                       </div>
+    
+                       <div><label class="block text-xs font-bold text-lime-300 mb-1">Ket</label><input type="text" id="gradKet" class="gradKet w-full p-2 text-sm rounded-lg glossy-input"></div>
+                   </div>
+               </div>
+               <button type="button" onclick="tambahGraduasi()" class="text-xs font-bold text-lime-400 hover:text-lime-300 mt-1"><i class="fas fa-plus-circle"></i> Tambah KPM</button>
+        
+           </div>`;
+       }
+       if (selectedUpper.includes("P2K2")) {
+           html += `
+           <div class="bg-lime-900/10 border border-lime-500/30 p-4 rounded-xl mb-3 shadow-inner">
+               <h3 class="text-xs font-bold text-lime-400 mb-3"><i class="fas fa-users mr-2"></i>Data P2K2</h3>
+               <div id="containerP2K2">
+                 
+                   <div class="p2k2-item border-b border-zinc-700/50 pb-3 mb-3 relative">
+                       <div class="mb-3"><label class="block text-xs font-bold text-lime-300 mb-1">Nama Kelompok</label><input type="text" id="p2k2Kelompok" class="p2k2Kelompok w-full p-3 text-sm rounded-lg glossy-input"></div>
+                       <div class="grid grid-cols-2 gap-3 mb-3">
+                           
+<div><label class="block text-xs font-bold text-lime-300 mb-1">Jml Hadir</label><input type="number" id="p2k2Hadir" class="p2k2Hadir w-full p-3 text-sm rounded-lg glossy-input"></div>
+                           <div><label class="block text-xs font-bold text-lime-300 mb-1">Jml Absen</label><input type="number" id="p2k2Absen" class="p2k2Absen w-full p-3 text-sm rounded-lg glossy-input"></div>
+                       </div>
+                   </div>
+   
+                </div>
+               <button type="button" onclick="tambahP2K2()" class="text-xs font-bold text-lime-400 hover:text-lime-300 mt-1"><i class="fas fa-plus-circle"></i> Tambah Kelompok</button>
+           </div>`;
+}
+       if (selectedUpper.includes("VERIFIKASI KOMITMEN") || selectedUpper.includes("VERKOM")) {
+           html += `<div class="mb-3"><label class="block text-xs font-bold text-lime-300 mb-1">Nama Sekolah/Puskesmas</label><input type="text" id="verkomLokasi" class="w-full p-3 text-sm rounded-xl glossy-input"></div>`;
+}
+       if (selectedUpper.includes("SUPERVISI")) {
+           html += `<div class="mb-3"><label class="block text-xs font-bold text-lime-300 mb-1">Nama Yang Disupervisi</label><input type="text" id="supervisiNama" class="w-full p-3 text-sm rounded-xl glossy-input"></div>`;
+}
+       if (!selectedUpper.includes("GRADUASI") && !selectedUpper.includes("P2K2") && !selectedUpper.includes("VERKOM") && !selectedUpper.includes("SUPERVISI")) {
+            html += `<div class="mb-3"><label class="block text-xs font-bold text-lime-300 mb-1">Sasaran/Target Kegiatan</label><input type="text" id="sasaranUmum" class="w-full p-3 text-sm rounded-xl glossy-input"></div>`;
+}
+       
+       html += `<div class="mb-3"><label class="block text-xs font-bold text-lime-300 mb-1">Rincian / Hasil (Umum)</label><textarea id="hasilKegiatan" class="w-full p-3 text-sm rounded-xl glossy-input" rows="3"></textarea></div>
+                <div class="mb-3"><label class="block text-xs font-bold text-lime-300 mb-1">Catatan Tambahan (Bahan Analisa AI)</label><textarea id="catatanUmum" class="w-full p-3 text-sm rounded-xl glossy-input" rows="2"></textarea></div>`;
+area.innerHTML = html;
+    }
+
+    window.tambahGraduasi = function() {
+        const container = document.getElementById('containerGraduasi');
+const count = container.querySelectorAll('.graduasi-item').length + 1;
+        const html = `
+        <div class="graduasi-item border-b border-zinc-700/50 pb-3 mb-3 relative pt-4 mt-2">
+            <button type="button" onclick="this.parentElement.remove()" class="absolute top-1 right-0 text-red-500 text-[10px] font-bold"><i class="fas fa-times"></i> Hapus</button>
+            <div class="grid grid-cols-2 gap-3 mb-3">
+                <div><label class="block text-xs font-bold text-lime-300 mb-1">No</label><input type="number" value="${count}" class="gradNo w-full p-2 text-sm rounded-lg glossy-input"></div>
+       
+                 <div><label class="block text-xs font-bold text-lime-300 mb-1">NIK</label><input type="number" class="gradNIK w-full p-2 text-sm rounded-lg glossy-input"></div>
+            </div>
+            <div class="mb-3"><label class="block text-xs font-bold text-lime-300 mb-1">Nama</label><input type="text" class="gradNama w-full p-2 text-sm rounded-lg glossy-input"></div>
+            <div class="grid grid-cols-2 gap-3 mb-3">
+                <div><label class="block text-xs font-bold text-lime-300 mb-1">Desa</label><input type="text" class="gradDesa w-full p-2 
+text-sm rounded-lg glossy-input"></div>
+                <div><label class="block text-xs font-bold text-lime-300 mb-1">Kec</label><input type="text" class="gradKec w-full p-2 text-sm rounded-lg glossy-input"></div>
+            </div>
+            <div><label class="block text-xs font-bold text-lime-300 mb-1">Ket</label><input type="text" class="gradKet w-full p-2 text-sm rounded-lg glossy-input"></div>
+        </div>`;
+container.insertAdjacentHTML('beforeend', html);
+    };
+
+    window.tambahP2K2 = function() {
+        const container = document.getElementById('containerP2K2');
+const html = `
+        <div class="p2k2-item border-b border-zinc-700/50 pb-3 mb-3 relative pt-4 mt-2">
+            <button type="button" onclick="this.parentElement.remove()" class="absolute top-1 right-0 text-red-500 text-[10px] font-bold"><i class="fas fa-times"></i> Hapus</button>
+            <div class="mb-3"><label class="block text-xs font-bold text-lime-300 mb-1">Nama Kelompok</label><input type="text" class="p2k2Kelompok w-full p-3 text-sm rounded-lg glossy-input"></div>
+            <div class="grid grid-cols-2 gap-3 mb-3">
+                
+<div><label class="block text-xs font-bold text-lime-300 mb-1">Jml Hadir</label><input type="number" class="p2k2Hadir w-full p-3 text-sm rounded-lg glossy-input"></div>
+                <div><label class="block text-xs font-bold text-lime-300 mb-1">Jml Absen</label><input type="number" class="p2k2Absen w-full p-3 text-sm rounded-lg glossy-input"></div>
+            </div>
+        </div>`;
+container.insertAdjacentHTML('beforeend', html);
+    };
+
+    let arrayFotoBase64 = []; let arrayLampiranBase64 = [];
+function renderFotoPreviews() {
+        let container = document.getElementById("previewContainer");
+        document.querySelectorAll('.thumb-preview-wrapper').forEach(el => el.remove());
+arrayFotoBase64.forEach((base64, index) => {
+            let wrapper = document.createElement("div");
+            wrapper.className = "relative thumb-preview-wrapper w-[60px] h-[60px]";
+            let imgElem = document.createElement("img");
+            imgElem.src = base64;
+            imgElem.className = "w-full h-full object-cover rounded-lg border border-lime-500/40 shadow-md"; 
+            
+   
+             let removeBtn = document.createElement("div");
+            removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+            removeBtn.className = "absolute -top-2 -right-2 bg-red-600 text-white w-5 h-5 flex items-center justify-center rounded-full cursor-pointer shadow-lg hover:bg-red-500 text-[10px] z-10 transition-transform active:scale-90";
+            removeBtn.onclick = function() {
+                arrayFotoBase64.splice(index, 1);
+         
+               renderFotoPreviews();
+                document.getElementById('photoStatus').innerText = `${arrayFotoBase64.length} / 10 Foto`;
+};
+            wrapper.appendChild(imgElem);
+            wrapper.appendChild(removeBtn);
+            container.insertBefore(wrapper, document.getElementById("tombolTambahArea"));
+        });
+    }
+
+    function prosesFoto(event) {
+      let files = event.target.files;
+if (!files || files.length === 0) return;
+      let fileIndex = 0;
+function processNextFile() {
+        if (fileIndex >= files.length) { event.target.value = ""; return;
+}
+        if (arrayFotoBase64.length >= 10) { showToast("Maksimal 10 Foto", 'error'); event.target.value = "";
+return; }
+        
+        let file = files[fileIndex];
+let reader = new FileReader();
+        reader.onload = function(e) {
+          let img = new Image();
+img.onload = function() {
+            let canvas = document.createElement('canvas');
+let ctx = canvas.getContext('2d');
+            let maxW = 800; let maxH = 800; let w = img.width; let h = img.height;
+if (w > h) { if (w > maxW) { h *= maxW / w; w = maxW;
+} } 
+            else { if (h > maxH) { w *= maxH / h;
+h = maxH; } }
+            
+            canvas.width = w;
+canvas.height = h;
+            ctx.drawImage(img, 0, 0, w, h);
+            arrayFotoBase64.push(canvas.toDataURL('image/jpeg', 0.6));
+            renderFotoPreviews();
+            document.getElementById('photoStatus').innerText = `${arrayFotoBase64.length} / 10 Foto`;
+            fileIndex++; processNextFile();
+          };
+img.src = e.target.result;
+        }; reader.readAsDataURL(file);
+      } processNextFile();
+    }
+
+    function renderLampiranPreviews() {
+        let container = document.getElementById("previewLampiranContainer");
+document.querySelectorAll('.thumb-lampiran-wrapper').forEach(el => el.remove());
+        arrayLampiranBase64.forEach((base64, index) => {
+            let wrapper = document.createElement("div");
+            wrapper.className = "relative thumb-lampiran-wrapper w-[60px] h-[60px]";
+            let imgElem = document.createElement("img");
+            imgElem.src = base64;
+            imgElem.className = "w-full h-full object-cover rounded-lg border border-lime-500/40 shadow-md"; 
+            
+            let removeBtn = document.createElement("div");
+            removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+            removeBtn.className = "absolute -top-2 -right-2 bg-red-600 text-white w-5 h-5 flex items-center justify-center rounded-full cursor-pointer shadow-lg hover:bg-red-500 text-[10px] z-10 transition-transform active:scale-90";
+            removeBtn.onclick = function() {
+                arrayLampiranBase64.splice(index, 1);
+      
+                renderLampiranPreviews();
+                document.getElementById('lampiranStatus').innerText = `${arrayLampiranBase64.length} / 3 File`;
+};
+            wrapper.appendChild(imgElem);
+            wrapper.appendChild(removeBtn);
+            container.insertBefore(wrapper, document.getElementById("tombolTambahLampiran"));
+        });
+    }
+
+    function prosesLampiran(event) {
+      let files = event.target.files;
+if (!files || files.length === 0) return;
+      let fileIndex = 0;
+function processNextLampiran() {
+        if (fileIndex >= files.length) { event.target.value = ""; return;
+}
+        if (arrayLampiranBase64.length >= 3) { showToast("Maksimal 3 File", 'error'); event.target.value = "";
+return; }
+        
+        let file = files[fileIndex];
+let reader = new FileReader();
+        reader.onload = function(e) {
+          let img = new Image();
+img.onload = function() {
+            let canvas = document.createElement('canvas');
+let ctx = canvas.getContext('2d');
+            let maxW = 1200; let maxH = 1200; let w = img.width; let h = img.height;
+if (w > h) { if (w > maxW) { h *= maxW / w; w = maxW;
+} } 
+            else { if (h > maxH) { w *= maxH / h;
+h = maxH; } }
+            canvas.width = w;
+canvas.height = h;
+            ctx.drawImage(img, 0, 0, w, h);
+            arrayLampiranBase64.push(canvas.toDataURL('image/jpeg', 0.8));
+            renderLampiranPreviews();
+            document.getElementById('lampiranStatus').innerText = `${arrayLampiranBase64.length} / 3 File`;
+            fileIndex++; processNextLampiran();
+          };
+img.src = e.target.result;
+        }; reader.readAsDataURL(file);
+      } processNextLampiran();
+    }
+
+    // ==========================================
+    // TAMPILKAN POPUP REVIEW (MODIFIKASI AMBIL DARI SETTINGS)
+    // ==========================================
+    function tampilkanReview(e) {
+        e.preventDefault();
+        
+        if(!cfgSettings.nama || !cfgSettings.jabatan) {
+            showToast("Harap lengkapi Identitas di Menu Pengaturan terlebih dahulu", "error");
+            nav('settings');
+            return;
+        }
+
+if(currentUser.role !== 'admin' && currentUser.data.token <= 0) {
+            showToast("Gagal", "error");
+return;
+        }
+
+        const tglStr = document.getElementById('tanggalLaporan').value || '-';
+        let dtFormat = formatWITA(tglStr);
+const tgl = dtFormat.tgl !== '-' ? dtFormat.tgl : tglStr;
+        const waktu = document.getElementById('waktu').value || '-';
+const jamMulai = document.getElementById('jamMulai').value || '-';
+        const kegiatan = document.getElementById('kegiatanSelect').value || '-';
+        
+        // AMBIL DARI SETTINGS
+        const nama = cfgSettings.nama || '-';
+const nip = cfgSettings.nip || '-';
+        const jabatan = cfgSettings.jabatan || '-';
+        const kab = cfgSettings.kabupaten || '-';
+        const ttdStatus = cfgSettings.ttd ? "<span class='text-lime-400 font-bold'>✓ Tersimpan</span>" : "<span class='text-red-400 font-bold'>✗ Kosong</span>";
+        
+const lokasi = document.getElementById('lokasi').value || '-';
+        const emailTujuan = document.getElementById('emailTarget').value || '-';
+        
+        let selectedFormats = [];
+        if(document.getElementById('formatPDF').checked) selectedFormats.push('PDF');
+        if(document.getElementById('formatDOCX').checked) selectedFormats.push('DOCX');
+        if(selectedFormats.length === 0) { showToast("Pilih minimal 1 Format Ekspor!", "error"); return; }
+        const formatOutput = selectedFormats.join(' & ');
+
+        let arrDasar = [];
+document.querySelectorAll('.input-dasar-surat').forEach(el => { if(el.value.trim() !== '') arrDasar.push(el.value); });
+        const dataSurat = arrDasar.length > 0 ?
+arrDasar.join(' | ') : "Tidak ada";
+
+        let arrPerihal = [];
+        document.querySelectorAll('.input-perihal-surat').forEach(el => { if(el.value.trim() !== '') arrPerihal.push(el.value); });
+const perihalSurat = arrPerihal.length > 0 ? arrPerihal.join(' | ') : "Tidak ada";
+
+        let dynamicInfo = "";
+if (document.getElementById('containerGraduasi')) {
+            const count = document.querySelectorAll('.graduasi-item').length;
+dynamicInfo += `<p class="mb-1 text-lime-300"><b>Jumlah KPM Graduasi:</b> ${count} Data</p>`;
+        }
+        if (document.getElementById('containerP2K2')) {
+            const count = document.querySelectorAll('.p2k2-item').length;
+dynamicInfo += `<p class="mb-1 text-lime-300"><b>Jumlah Kelompok P2K2:</b> ${count} Data</p>`;
+        }
+        
+        document.querySelectorAll('#dynamicFormArea input, #dynamicFormArea textarea').forEach(el => {
+            if(el.id && el.value) {
+                let labelText = el.previousElementSibling ? el.previousElementSibling.innerText : el.id;
+                dynamicInfo += `<p class="mb-1 border-b border-zinc-700/50 pb-1"><b>${labelText}:</b><br><span class="text-white">${el.value}</span></p>`;
+         
+    }
+        });
+if(!dynamicInfo) dynamicInfo = "<p class='text-zinc-500 italic'>Tidak ada data dinamis khusus</p>";
+        
+        let htmlReview = `
+            <div class="space-y-3 text-xs text-zinc-300">
+                <div class="bg-zinc-800/50 p-3 rounded border border-lime-500/30">
+                    <h4 class="text-lime-400 font-bold border-b border-zinc-700 pb-1 mb-2">Identitas & Waktu</h4>
+                    <div class="grid grid-cols-2 gap-2">
+ 
+                        <p><b>Tanggal:</b><br>${tgl}</p>
+                        <p><b>Waktu/Jam Mulai:</b><br>${waktu} (${jamMulai})</p>
+                        <p><b>Petugas:</b><br>${nama}</p>
+                        <p><b>NIP:</b><br>${nip}</p>
+   
+                     <p class="col-span-2"><b>Jabatan:</b><br>${jabatan}</p>
+                        <p><b>Kabupaten:</b><br>${kab}</p>
+                        <p class="col-span-2"><b>Lokasi:</b><br>${lokasi}</p>
+                        <p class="col-span-2"><b>Email Akun:</b><br>${emailTujuan}</p>
+   
+                     <p class="col-span-2"><b>Format Ekspor:</b><br><span class="text-yellow-400 font-bold bg-yellow-900/40 px-2 py-0.5 rounded">${formatOutput}</span></p>
+                 </div>
+                </div>
+
+                <div class="bg-zinc-800/50 p-3 rounded border border-lime-500/30">
+                 
+    <h4 class="text-lime-400 font-bold border-b border-zinc-700 pb-1 mb-2">Data Kegiatan & Surat</h4>
+                    <p class="mb-2"><b>RHK:</b> ${kegiatan}</p>
+                    <p class="mb-1"><b>Dasar Surat:</b><br>${dataSurat}</p>
+                    <p class="mb-2"><b>Perihal:</b><br>${perihalSurat}</p>
+                </div>
+
+       
+                 <div class="bg-zinc-800/50 p-3 rounded border border-lime-500/30 max-h-40 overflow-y-auto custom-scrollbar">
+                    <h4 class="text-lime-400 font-bold border-b border-zinc-700 pb-1 mb-2">Data Lapangan (Dinamis)</h4>
+                    ${dynamicInfo}
+                </div>
+
+                <div class="grid grid-cols-3 
+gap-2 text-center text-[10px] mt-2">
+                    <div class="bg-black/30 p-2 rounded border border-zinc-700">TTD:<br>${ttdStatus}</div>
+                    <div class="bg-black/30 p-2 rounded border border-zinc-700">Foto:<br><b class="text-lime-400">${arrayFotoBase64.length}</b></div>
+                    <div class="bg-black/30 p-2 rounded border border-zinc-700">Lampiran:<br><b class="text-lime-400">${arrayLampiranBase64.length}</b></div>
+                </div>
+    
+        </div>
+            <div class="mt-4 p-3 bg-red-900/20 border border-red-500/30 rounded-xl text-[10px] text-zinc-300">
+                <i class="fas fa-exclamation-triangle text-red-500 mr-1"></i> Jika lanjut, AI mengeksekusi Laporan Anda (1 Token Terpotong).
+Jika gagal terunduh karena koneksi terputus, Token HANGUS.
+            </div>
+        `;
+        document.getElementById('reviewContent').innerHTML = htmlReview;
+document.getElementById('modalReview').classList.remove('hidden');
+    }
+
+    // ==========================================
+    // EKSEKUSI GENERATE KE SERVER 
+    // ==========================================
+    function executeGenerate() {
+      document.getElementById('modalReview').classList.add('hidden');
+showLoadingUI(true);
+      
+      let arrDasarSurat = [];
+      let arrPerihalSurat = [];
+      document.querySelectorAll('.input-dasar-surat').forEach(el => { if(el.value.trim() !== '') arrDasarSurat.push(el.value); });
+document.querySelectorAll('.input-perihal-surat').forEach(el => { if(el.value.trim() !== '') arrPerihalSurat.push(el.value); });
+      let formatDasarSurat = arrDasarSurat.length > 0 ? arrDasarSurat.join(' | ') : "";
+let formatPerihalSurat = arrPerihalSurat.length > 0 ? arrPerihalSurat.join(' | ') : "";
+
+      const dynamicData = {};
+if (document.getElementById('containerGraduasi')) {
+          let listGraduasi = [];
+document.querySelectorAll('.graduasi-item').forEach(item => {
+             listGraduasi.push({
+                No: item.querySelector('.gradNo').value,
+                NIK: item.querySelector('.gradNIK').value,
+                Nama: item.querySelector('.gradNama').value,
+                Desa: item.querySelector('.gradDesa').value,
+                Kec: 
+item.querySelector('.gradKec').value,
+                Ket: item.querySelector('.gradKet').value
+             });
+          });
+dynamicData["Data_Graduasi"] = listGraduasi;
+      }
+      
+      if (document.getElementById('containerP2K2')) {
+          let listP2K2 = [];
+document.querySelectorAll('.p2k2-item').forEach(item => {
+             listP2K2.push({
+                Kelompok: item.querySelector('.p2k2Kelompok').value,
+                Hadir: item.querySelector('.p2k2Hadir').value,
+                Absen: item.querySelector('.p2k2Absen').value
+             });
+          });
+dynamicData["Data_P2K2"] = listP2K2;
+      }
+
+      document.getElementById('dynamicFormArea').querySelectorAll('input[id], textarea[id]').forEach(i => {
+          dynamicData[i.id] = i.value;
+      });
+      
+      let selectedFormats = [];
+      if(document.getElementById('formatPDF').checked) selectedFormats.push('PDF');
+      if(document.getElementById('formatDOCX').checked) selectedFormats.push('DOCX');
+
+const payload = {
+        currentUserEmail: currentUser.data.email,
+        currentUserRole: currentUser.role,
+        tanggalLaporan: document.getElementById('tanggalLaporan').value,
+        jamMulai: document.getElementById('jamMulai').value,
+        dasarSurat: formatDasarSurat,
+        perihalSurat: formatPerihalSurat,
+        // DITARIK OTOMATIS DARI SETTINGS LOCALSTORAGE
+        namaPetugas: cfgSettings.nama, 
+        jabatan: cfgSettings.jabatan,
+        nip: cfgSettings.nip,
+        kabupaten: cfgSettings.kabupaten,
+        ttdData: cfgSettings.ttd || "", 
+        emailTarget: document.getElementById('emailTarget').value,
+        waktu: document.getElementById('waktu').value,
+        lokasi: document.getElementById('lokasi').value, 
+        kegiatan: document.getElementById('kegiatanSelect').value,
+        formatOutput: selectedFormats,
+        dynamicData: dynamicData,
+        koleksiFoto: arrayFotoBase64, 
+        lampiranPendukung: arrayLampiranBase64
+      };
+google.script.run
+        .withSuccessHandler(res => {
+           showLoadingUI(false);
+           if(res.status === 'error') { showToast(res.message, "error"); }
+           else { 
+               showToast("Sukses: File Terunduh", "success"); 
+               
+               // TRIGGER DOWNLOAD DARI BASE64 MEMORI (TANPA TEMP)
+               if(res.files && res.files.length > 0) {
+                   res.files.forEach(f => {
+                       const byteCharacters = atob(f.base64);
+                       const byteNumbers = new Array(byteCharacters.length);
+                       for (let i = 0; i < byteCharacters.length; i++) {
+                           byteNumbers[i] = byteCharacters.charCodeAt(i);
+                       }
+                       const byteArray = new Uint8Array(byteNumbers);
+                       const blob = new Blob([byteArray], {type: f.mimeType});
+                       const url = window.URL.createObjectURL(blob);
+                       const a = document.createElement('a');
+                       a.style.display = 'none';
+                       a.href = url;
+                       a.download = f.name;
+                       document.body.appendChild(a);
+                       a.click();
+                       window.URL.revokeObjectURL(url);
+                       document.body.removeChild(a);
+                   });
+               }
+               
+               document.getElementById('reportForm').reset();
+               
+  
+               arrayFotoBase64 = []; arrayLampiranBase64 = []; 
+               renderFotoPreviews(); renderLampiranPreviews();
+             
+               document.getElementById('photoStatus').innerText = "0 / 10 Foto";
+               document.getElementById('lampiranStatus').innerText 
+= "0 / 3 File";
+               
+               const suratContainer = document.getElementById('containerDataSurat');
+               const itemsSurat = suratContainer.querySelectorAll('.surat-item');
+               for(let i=1; i<itemsSurat.length; i++) itemsSurat[i].remove();
+         
+              document.getElementById('dynamicFormArea').innerHTML = '';
+if(currentUser.role !== 'admin') {
+                  loadDashboardData();
+nav('dashboard');
+               }
+           }
+        })
+        .withFailureHandler(err => {
+           showLoadingUI(false); showToast("Gagal", "error");
+        })
+        .prosesLaporan(payload);
+}
+  </script>
+</body>
+</html>
